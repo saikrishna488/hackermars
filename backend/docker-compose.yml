@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/hackermars
+      - CLIENT_ID=726105873846-7rr65gueb94pmgoj2invg1gb4iuvdpft.apps.googleusercontent.com
+
+    volumes:
+      - .:/usr/src/app
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
