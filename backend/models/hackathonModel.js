@@ -70,6 +70,12 @@ const hackathonSchema = new mongoose.Schema({
     organizer_code :{
         type :String
     },
+    start_time  : {
+        type : Date
+    },
+    end_time : {
+        type : Date
+    }
 }, { timestamps: true });
 
 const hackathonModel = mongoose.model('Hackathon', hackathonSchema);

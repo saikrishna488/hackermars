@@ -22,10 +22,12 @@ router.post('/add', async (req, res) => {
             email,
             fee,
             eligibility,
+            start_time,
+            end_time
         } = req.body;
 
         // Validate that all required fields are provided
-        if (!image_url || !title || !team_size || !about || !themes || !judges || !organizers || !description || !partners || !prizes || !date || !mode || !phone || !email || !fee || !eligibility) {
+        if (!image_url || !title || !team_size || !about || !themes || !judges || !organizers || !description || !partners || !prizes || !date || !mode || !phone || !email || !fee || !eligibility || !start_time || !end_time) {
             return res.status(400).json({
                 msg: "Fill all the fields",
                 res: false
@@ -49,7 +51,9 @@ router.post('/add', async (req, res) => {
             phone,
             email,
             fee,
-            eligibility
+            eligibility,
+            start_time,
+            end_time
         });
 
         // Respond with success

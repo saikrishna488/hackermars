@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+  background-color: white;
+  z-index: 10;
+}
+
+/* For WebKit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 1px; /* Extra thin scrollbar width */
+  height: 1px; /* Extra thin horizontal scrollbar width if applicable */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Transparent background for the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888; /* Color of the scrollbar thumb */
+  border-radius: 20px; /* More rounded corners for the scrollbar thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker color when hovered */
+}
+
+::-webkit-scrollbar-button {
+  display: none; /* Hides the arrows on the scrollbar */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin; /* Makes the scrollbar thin */
+  scrollbar-color: #888 transparent; /* Sets thumb and track color */
+}
+
+/* Rounded corners are not supported in Firefox, but the thumb will still be thin and styled */
