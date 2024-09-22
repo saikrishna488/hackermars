@@ -59,7 +59,6 @@ const hackathonSchema = new mongoose.Schema({
     },
     fee : {
         type : String,
-        required : true
     },
     registered_users : {
         type : [String],
@@ -67,14 +66,25 @@ const hackathonSchema = new mongoose.Schema({
     eligibility : {
         type : String,
     },
-    organizer_code :{
-        type :String
+    isPrivate :{
+        type :Boolean
     },
     start_time  : {
         type : Date
     },
     end_time : {
         type : Date
+    },
+    conducted_by : {
+        type :String,
+        required : true
+    },
+    max_users : {
+        type : Number,
+        required : true
+    },
+    client_id : {
+        type : String
     }
 }, { timestamps: true });
 

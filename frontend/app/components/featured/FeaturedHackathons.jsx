@@ -3,13 +3,13 @@ import React, { useEffect, useRef } from 'react';
 import { IoIosArrowBack,IoIosArrowForward } from "react-icons/io";
 
 const demoHackathons = [
-  { img: "https://d8it4huxumps7.cloudfront.net/images/home-page-banner/66c48fe829580_Alchemy-HP.jpg?d=1266x494", title: "Hackathon 2024" },
-  { img: "https://d8it4huxumps7.cloudfront.net/images/home-page-banner/66d037c2686e7_devan-bhalla-rb-blue.jpg?d=1266x494", title: "Innovators' Challenge" },
-  { img: "https://d8it4huxumps7.cloudfront.net/images/home-page-banner/66d1b6056b2d5_Featured_Homepage_Banner_Image.jpg?d=1266x494", title: "Code Fest" },
-  { img: "https://d8it4huxumps7.cloudfront.net/images/home-page-banner/66e436cbe90de_homepage-banner-1280x500-v5.jpg?d=1266x494", title: "Tech Titans" },
-  { img: "https://d8it4huxumps7.cloudfront.net/images/home-page-banner/66e3d372adf33_1_ingenious_homepage_banner_1280_x_500px.jpg?d=1266x494", title: "Startup Sprint" },
-  { img: "https://d8it4huxumps7.cloudfront.net/images/home-page-banner/66e02fc9ac74b_Homepage-01-01.jpg?d=1266x494", title: "AI Challenge" },
-  { img: "https://d8it4huxumps7.cloudfront.net/images/home-page-banner/66e28b1239614_Featured-Homepage-Banner-10-Sep-2024.jpg?d=1266x494", title: "Blockchain Bonanza" }
+  { img: "https://devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fcontent%2F030b041535514a4db9321a346b6551d0%2F8c72122e-16c0-4a5b-9b5a-24ea065e2961.png&w=1440&q=75", title: "Hackathon 2024" },
+  { img: "https://hack-synthesis.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2Fa485a56b617a4864844f9ae238cfe38d%2Fassets%2Fcover%2F677.png&w=1440&q=100", title: "Innovators' Challenge" },
+  { img: "https://tictechtoe24.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2Fba6317ea5a2d40ffb5605600562b4857%2Fassets%2Fcover%2F200.png&w=1440&q=100", title: "Code Fest" },
+  { img: "https://thacks-7.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2F99b20414637c4111923d3b4e4c26b0ec%2Fassets%2Fcover%2F545.jpeg&w=1440&q=100", title: "Tech Titans" },
+  { img: "https://pitch-a-thon.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2F039ee018058642088f2b7002f67f85cd%2Fassets%2Fcover%2F980.png&w=1440&q=100", title: "Startup Sprint" },
+  { img: "https://techtrek.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2Fda1b3a9a329d4e3c952d6127f6cd5081%2Fassets%2Fcover%2F438.png&w=1440&q=100", title: "AI Challenge" },
+  { img: "https://frosthacks-s01.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2Fcbfa188e2b274347bd8004200c4b43d9%2Fassets%2Fcover%2F588.jpeg&w=1440&q=100", title: "Blockchain Bonanza" }
 ];
 
 const FeaturedHackathons = () => {
@@ -51,7 +51,7 @@ const FeaturedHackathons = () => {
   return (
     <div className='relative flex justify-center mt-20 w-full py-12 select-none'>
       <div className='w-full max-w-screen-xl relative'>
-        <h2 className='text-3xl font-bold text-gray-900 mb-8 text-left '>Featured Hackathons</h2>
+        <h2 className='text-3xl font-bold text-gray-900 mb-8 text-left px-4'>Featured Hackathons</h2>
         <div className='relative flex w-full px-4 items-center'>
 
           {/* Left Arrow (hidden on small screens) */}
@@ -65,18 +65,18 @@ const FeaturedHackathons = () => {
           {/* Hackathon Cards Container */}
           <div
             ref={scrollContainerRef}
-            className='flex gap-4 overflow-x-auto w-full scrollbar-hide rounded-3xl snap-x snap-mandatory'
+            className='flex gap-4 overflow-x-auto w-full scrollbar-hide rounded snap-x snap-mandatory'
             style={{ scrollBehavior: 'smooth' }}
           >
             {demoHackathons.map((hack, index) => (
               <div
                 key={index}
-                className='bg-white shadow-lg rounded-3xl overflow-hidden flex-shrink-0 snap-start lg:w-[640px] w-[100%]'
+                className='bg-white shadow-lg lg:rounded-3xl rounded-lg overflow-hidden flex-shrink-0 snap-start lg:w-[610px] w-[100%]'
               >
                 <img
                   src={hack.img}
                   alt={hack.title}
-                  className='lg:h-[300px] h-[200px] w-[100%] object-cover'
+                  className='lg:h-[300px] h-[200px]  w-[100%] '
                   style={{ aspectRatio: '16/9' }} // Maintaining 16:9 aspect ratio
                 />
               </div>

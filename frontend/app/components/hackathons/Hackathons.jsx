@@ -20,6 +20,7 @@ const Hackathons = () => {
                 const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/hackathon/show`);
                 if (res.data.res) {
                     setHackathons(res.data.hackathons);
+                    setFilteredHackathons(res.data.hackathons)
                     setSelectedHackathon(res.data.hackathons[0] || {});
                 }
             } catch (err) {
@@ -39,10 +40,10 @@ const Hackathons = () => {
             <div className='flex flex-row w-full h-full'>
                 <Sidebar
                     hackathons={hackathons}
-                    setHackathons={setHackathons}
+                    setHackathons={setFilteredHackathons}
                     setSelectedHackathon={setSelectedHackathon}
                 />
-                {hackathons.length > 0 ? (
+                {filteredHackathons.length > 0 ? (
                     <>
                         <LeftSection
                             hackathons={filteredHackathons.length ? filteredHackathons : hackathons}

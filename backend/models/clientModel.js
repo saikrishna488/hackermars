@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 
-const userSchema = mongoose.Schema({
+const clientSchema = mongoose.Schema({
 
     name : {
         type : String,
@@ -18,32 +18,33 @@ const userSchema = mongoose.Schema({
         type : String
     },
 
-    login_type : {
+    otp : {
         type : String,
-        required : true
     },
 
     profile_url :{
         type: String
     },
 
-    google_token : {
-        type : String
+    credits : {
+        type : Number
     },
     createdAt: {
         type: Date,
         default: Date.now
     },
-    updatedAt: {
-        type: Date,
-        default: Date.now
+    phone : {
+        type : Number
     },
-    registered_events : {
-        type : [Number]
+    events : {
+        type: [String]
+    },
+    is_verified :{
+        type: Boolean,
     }
 })
 
 
-const userModel = mongoose.model('user',userSchema)
+const clientModel = mongoose.model('client',clientSchema)
 
-export default userModel;
+export default clientModel;

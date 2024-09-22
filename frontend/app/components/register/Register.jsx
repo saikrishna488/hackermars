@@ -16,7 +16,6 @@ const Register = () => {
         e.preventDefault();
         const formData = new FormData(e.target);
 
-
         const userData = {
             name: formData.get('name'),
             email: formData.get('email'),
@@ -29,14 +28,25 @@ const Register = () => {
             return;
         }
 
+        // Validate name length
+        if (userData.name.length < 6) {
+            toast.error("Name must be at least 6 characters long.");
+            return;
+        }
+
+        // Validate password length
+        if (userData.password.length < 6) {
+            toast.error("Password must be at least 6 characters long.");
+            return;
+        }
+
+        // Validate image file
         if (imageFile) {
             if (!['image/jpeg', 'image/png', 'image/jpg'].includes(imageFile.type)) {
                 toast.error("Only .jpg, .png, or .jpeg files are allowed.");
                 return;
             }
         }
-
-
 
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, formData, {
@@ -56,7 +66,6 @@ const Register = () => {
             toast.error("Registration failed. Please try again.");
         }
     };
-
 
     const handleImageChange = (event) => {
         setImageFile(event.target.files[0]); // Set selected image file

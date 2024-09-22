@@ -25,7 +25,7 @@ const Navbar = () => {
 
     return (
         <div className={`bg-white w-full fixed top-0 left-0 right-0 shadow-md z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-lg' : 'shadow-md'}`}>
-            <MobileNavbar isScrolled={isScrolled} router={router} />
+            <MobileNavbar user={user} isScrolled={isScrolled} router={router} />
             <DesktopNavbar router={router} user={user} />
         </div>
     );
