@@ -4,7 +4,6 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import userRouter from './routes/user.js'
 import hackathonRouter from './routes/hackathon.js'
-import clientRouter from './routes/client.js'
 const port = 5000 || process.env.PORT
 import db from './config/db.js'
 import path from 'path'
@@ -25,7 +24,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //routes
 app.use('/user', userRouter)
 app.use('/hackathon', hackathonRouter)
-app.use('/client', clientRouter )
 
 app.get('/',(req,res)=>{
     res.send("api is live")

@@ -19,17 +19,6 @@ const JoinDiscordButton = () => {
                     Join Discord Community
                 </button>
             </div>
-
-            {/* Floating Discord Icon with Text Rotated 90 Degrees */}
-            <div
-                className='fixed bottom-[150px] right-[-94px] -rotate-90  m-0 bg-black p-2 shadow-md cursor-pointer hover:bg-blue-700 flex items-center'
-                onClick={handleClick} 
-            >
-                <div className='flex flex-row items-center text-white'>
-                    <FaDiscord size={30} />
-                    <span className='text-base ml-2'>Join Discord Community</span>
-                </div>
-            </div>
         </div>
     );
 };

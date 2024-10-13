@@ -2,7 +2,6 @@ import express from 'express'
 const router = express.Router();
 import hackathonModel from '../models/hackathonModel.js';
 import multer from 'multer';
-import clientModel from '../models/clientModel.js';
 
 
 

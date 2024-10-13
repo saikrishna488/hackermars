@@ -40,6 +40,15 @@ const userSchema = mongoose.Schema({
     },
     registered_events : {
         type : [Number]
+    },
+    is_host : {
+        type : Boolean,
+    },
+    hosted_events : {
+        type : [String]
+    },
+    is_verified : {
+        type : Boolean
     }
 })
 

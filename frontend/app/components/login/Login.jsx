@@ -58,7 +58,7 @@ const Login = () => {
             console.log(res.data)
 
             if (res.data.res) {
-                toast("Login successful!");
+                toast.success("Login successful!");
                 setUser(res.data.user)
                 setCookie("token", res.data.token, 30)
                 router.push('/'); // Redirect to login after successful registration
@@ -100,10 +100,10 @@ const Login = () => {
         const data = res.data;
 
         if(data.res){
-            toast("Sign in successfull");
+            toast.successt("Sign in successfull");
             setUser(data.user)
             router.push('/')
-            toast("Welcome "+data.user.name)
+            toast.success("Welcome "+data.user.name)
 
             setCookie("token",idToken,30)
             

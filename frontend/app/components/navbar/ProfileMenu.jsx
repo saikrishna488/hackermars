@@ -32,7 +32,7 @@ const ProfileMenu = ({ user }) => {
                     )}
 
                     {isProfileVisible && (
-                        <div className="bg-white rounded-lg absolute top-0 right-0 w-[250px] flex flex-col text-sm shadow-lg z-50">
+                        <div className="bg-white rounded-lg absolute top-0 w-[300px] right-0 max-w-[400px] flex flex-col text-sm shadow-lg z-50">
                             {/* Close Icon */}
                             <div className='flex justify-end p-2'>
                                 <button onClick={() => setIsProfileVisible(false)}>
@@ -41,7 +41,7 @@ const ProfileMenu = ({ user }) => {
                             </div>
 
                             {/* Profile Info */}
-                            <div className='p-4 flex flex-row items-center gap-3 border-b rounded-lg'>
+                            <div className='p-4 flex flex-row items-center relative gap-2 border-b rounded-lg'>
                                 {user.profile_url ? (
                                     <img
                                         src={user.login_type === 'google' ? user.profile_url : process.env.NEXT_PUBLIC_BACKEND_URL + "/" + user.profile_url}
@@ -53,10 +53,11 @@ const ProfileMenu = ({ user }) => {
                                         {user.name.charAt(0).toUpperCase()}
                                     </div>
                                 )}
-                                <div className='flex flex-col'>
+                                <div className='flex flex-col relative'>
                                     <h4 className='font-semibold text-gray-800'>{user.name}</h4>
-                                    <span className='text-gray-500 text-sm'>{user.email}</span>
+                                    <span className='text-gray-500 text-sm break-words'>{user.email}</span>
                                 </div>
+
                             </div>
 
                             {/* Menu List */}
