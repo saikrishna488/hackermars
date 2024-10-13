@@ -49,6 +49,24 @@ const userSchema = mongoose.Schema({
     },
     is_verified : {
         type : Boolean
+    },
+    request_status : {
+        type : String
+    },
+    phone : {
+        type: Number
+    },
+    organization : {
+        type : String
+    },
+    organization_id : {
+        type : String
+    },
+    reason : {
+        type : String
+    },
+    aadhar : {
+        type :String
     }
 })
 

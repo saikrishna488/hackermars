@@ -1,12 +1,23 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import Link from 'next/link'
 import { CheckSquare, FileText, User, Phone, Clipboard, Send } from 'lucide-react'
+import { globalContext } from '@/context_api/globalContext'
+import { toast } from 'react-toastify'
+import { useRouter } from 'next/navigation'
 
 const Host = () => {
 
     const [confirm, setConfirm] = useState(false)
+    const {user} = useContext(globalContext)
+    const router = useRouter()
+
+    if(!user?.name){
+        toast.error("Login to Host a Hackathon")
+        router.push('/login')
+    }
+
 
     return (
         <div className="max-w-lg mt-24 mx-auto p-6 bg-white shadow-md rounded-lg">

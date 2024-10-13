@@ -3,6 +3,7 @@ import "./globals.css";
 import { GlobalProvider } from "@/context_api/globalContext";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import UserRender from "./components/login/render";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,6 +32,7 @@ export default function RootLayout({ children }) {
 
         <script src="https://accounts.google.com/gsi/client" async defer></script>
           <GlobalProvider>
+            <UserRender/>
             {children}
             <ToastContainer />
           </GlobalProvider>

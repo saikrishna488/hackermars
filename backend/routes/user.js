@@ -322,6 +322,49 @@ router.post('/jwt', async (req, res) => {
 });
 
 
+router.post('/appeal', async (req,res)=>{
+    try{
+
+        const {aadhar, organization , organization_id ,phone, reason, email} = req.body
+
+        if(!aadhar || !organization || !organization_id || !phone || !reason){
+            return res.json({
+                msg : "Provide All details",
+                res : false
+            })
+        }
+
+        const user = await userModel.findOne({email})
+
+        user.aadhar = aadhar
+        user.phone = phone
+        user.organization = organization
+        user.organization_id = organization_id
+        user.reason = reason
+        user.request_status = "pending"
+
+        await user.save();
+
+        const { password: newUserPassword, google_token, ...userObject } = user._doc;
+
+        return res.json({
+            msg : "Application sent wait for approval",
+            res : true,
+            user : userObject
+        })
+
+    }
+    catch(err){
+        console.log(err)
+
+        return res.json({
+            msg : "Server Error",
+            res : false
+        })
+    }
+})
+
+
 
 
 
