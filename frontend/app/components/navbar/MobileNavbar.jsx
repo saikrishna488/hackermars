@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Menu, X, Home, Book,Trophy,PlusCircle} from 'lucide-react'; // Import Lucide Icons
-import SearchBar from './SearchBar';
 import ProfileMenu from './ProfileMenu';
 
 const MobileNavbar = ({ isScrolled, router, user }) => {
@@ -26,8 +25,6 @@ const MobileNavbar = ({ isScrolled, router, user }) => {
 
                 </div>
             </div>
-
-            <SearchBar isScrolled={isScrolled} isDropdownVisible={isDropdownVisible} setIsDropdownVisible={setIsDropdownVisible} />
 
             {isMenuVisible && (
                 <div className="fixed top-0 right-0 w-full bg-white shadow-lg z-50">

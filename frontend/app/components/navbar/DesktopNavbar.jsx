@@ -2,13 +2,11 @@
 
 import { Plus, Home, ClipboardList, FileText } from 'lucide-react'; // Import Lucide Icons
 import ProfileMenu from './ProfileMenu';
-import SearchBar from './SearchBar';
 
 const DesktopNavbar = ({ router, user }) => (
     <div className="lg:flex hidden flex-row items-center justify-between w-[80%] mx-auto py-2 bg-white  rounded-lg transition-shadow duration-300">
         <div className="flex flex-row gap-4 items-center">
             <h5 className="text-xl font-bold text-gray-900 cursor-pointer" onClick={() => router.push('/')}>HackerMars</h5>
-            <SearchBar />
         </div>
 
         <ul className="flex space-x-6 text-gray-700 items-center text-base">

@@ -47,7 +47,7 @@ const HackathonCard = ({ hackathon }) => (
     <img
       src={hackathon.poster}
       alt={hackathon.title}
-      className="w-full h-40 object-cover mb-4 rounded-lg"
+      className="w-full h-32 sm:h-40 object-cover mb-4 rounded-lg"
     />
     <h3 className="text-lg md:text-xl font-semibold mb-3 text-gray-900">{hackathon.title}</h3>
     
@@ -90,22 +90,39 @@ const HackathonCard = ({ hackathon }) => (
 const Hackathons = () => {
   const [filterMode, setFilterMode] = useState('');
   const [filterDate, setFilterDate] = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); // Search query state
 
   const filteredHackathons = hackathonsData.filter((hackathon) => {
+    const matchesSearch = hackathon.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const isUpcoming = new Date(hackathon.date) >= new Date();
+    const isPast = new Date(hackathon.date) < new Date();
+
     return (
+      matchesSearch &&
       (filterMode === '' || hackathon.mode === filterMode) &&
-      (filterDate === '' || new Date(hackathon.date) >= new Date(filterDate))
+      (filterDate === 'upcoming' ? isUpcoming : filterDate === 'past' ? isPast : true)
     );
   });
 
   return (
-    <div className="p-6 lg:mt-0 mt-16 pt-24">
-      {/* Top Bar with Filters */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Upcoming Hackathons</h2>
-        <div className="flex space-x-4">
+    <div className="p-4 lg:mt-0 mt-16 pt-24">
+      {/* Top Bar with Filters and Search */}
+      <div className="flex flex-wrap justify-between items-center mb-6 space-y-4 md:space-y-0">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Upcoming Hackathons</h2>
+
+        <div className="flex flex-wrap space-x-4 gap-2">
+          {/* Search Input */}
+          <input
+            type="text"
+            className="border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-700 focus:outline-none focus:border-blue-500 transition"
+            placeholder="Search hackathons..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
+          {/* Mode Filter */}
           <select
-            className="border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-700"
+            className="border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-700 focus:outline-none focus:border-blue-500 transition"
             onChange={(e) => setFilterMode(e.target.value)}
             value={filterMode}
           >
@@ -115,20 +132,21 @@ const Hackathons = () => {
             <option value="Hybrid">Hybrid</option>
           </select>
 
+          {/* Date Filter */}
           <select
-            className="border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-700"
+            className="border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-700 focus:outline-none focus:border-blue-500 transition"
             onChange={(e) => setFilterDate(e.target.value)}
             value={filterDate}
           >
             <option value="">All Dates</option>
-            <option value="2024-10-01">After October 2024</option>
-            <option value="2024-11-01">After November 2024</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="past">Past</option>
           </select>
         </div>
       </div>
 
       {/* Hackathon Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {filteredHackathons.length > 0 ? (
           filteredHackathons.map((hackathon) => (
             <HackathonCard key={hackathon.id} hackathon={hackathon} />
