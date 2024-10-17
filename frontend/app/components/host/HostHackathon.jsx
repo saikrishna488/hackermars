@@ -1,11 +1,18 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ReactQuill from 'react-quill';
+import dynamic from 'next/dynamic';
+
+const ReactQuill = dynamic(() => import('react-quill'), {
+  ssr: false, // This ensures the component is only rendered on the client side
+});
+
 import 'react-quill/dist/quill.snow.css';
 
 const HostHackathon = () => {
   const router = useRouter();
+  const fileRef = useRef()
+
   const [fields, setFields] = useState({
     title: '',
     image: null,
@@ -87,6 +94,7 @@ const HostHackathon = () => {
             <label className="block font-semibold text-lg mb-1">Upload Image</label>
             <div className="flex items-center justify-between border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 transition duration-150 ease-in-out hover:bg-gray-100">
               <input
+              ref={fileRef}
                 type="file"
                 name="image"
                 onChange={handleChange}
@@ -95,7 +103,7 @@ const HostHackathon = () => {
                 required
                 id='file-upload'
               />
-              <div onClick={() => document.getElementById('file-upload').click()} className="flex-1 text-center">
+              <div onClick={() => fileRef.current.click()} className="flex-1 text-center">
                 {
                   fields?.image ? (
                     <span className="text-gray-600">{fields?.image?.name}</span>

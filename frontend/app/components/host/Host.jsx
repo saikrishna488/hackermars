@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { CheckSquare, FileText, User, Phone, Clipboard, Send } from 'lucide-react'
 import { globalContext } from '@/context_api/globalContext'
@@ -13,10 +13,14 @@ const Host = () => {
     const {user} = useContext(globalContext)
     const router = useRouter()
 
-    if(!user?.name){
-        toast.error("Login to Host a Hackathon")
-        router.push('/login')
-    }
+    useEffect(()=>{
+        if(!user?.name){
+            toast.error("Login to Host a Hackathon")
+            router.push('/login')
+        }
+    },[])
+
+    
 
 
     return (
