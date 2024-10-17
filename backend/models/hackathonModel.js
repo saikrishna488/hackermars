@@ -85,7 +85,17 @@ const hackathonSchema = new mongoose.Schema({
     },
     client_id : {
         type : String
+    },
+    location : {
+        type : String
+    },
+    social_links: {
+        type: [String],
+    },
+    teams : {
+        type : Object
     }
+    
 }, { timestamps: true });
 
 const hackathonModel = mongoose.model('Hackathon', hackathonSchema);
