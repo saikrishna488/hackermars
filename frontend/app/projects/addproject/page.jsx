@@ -1,7 +1,9 @@
 "use client";
 import React, { useContext, useState, useEffect } from 'react';
 import Select from 'react-select';
-import ReactQuill from 'react-quill';
+import dynamic from 'next/dynamic';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import { FileText, Link, Type, Users, Code, Eye, Tag } from 'lucide-react';
 import 'react-quill/dist/quill.snow.css';
 import { globalContext } from '@/context_api/globalContext';
