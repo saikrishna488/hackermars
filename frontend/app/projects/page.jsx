@@ -8,7 +8,6 @@ const page = async () => {
   try {
     const res = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + '/project/getprojects',{
       cache : 'no-cache',
-      next :{revalidate : 60}
     });
 
     const data = await res.json();
