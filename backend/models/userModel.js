@@ -38,11 +38,9 @@ const userSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    registered_events : {
-        type : [Number]
-    },
-    is_host : {
-        type : Boolean,
+    registered_events: {
+        type: [String],    // Array of references to hackathons or event IDs
+        ref: 'hackathon'
     },
     hosted_events : {
         type : [String]
@@ -67,6 +65,20 @@ const userSchema = mongoose.Schema({
     },
     aadhar : {
         type :String
+    },
+    notifications : {
+        type : [{
+            message : {
+                type : String
+            },
+            date : {
+                type : Date
+            },
+            isRead : {
+                type : Boolean,
+                default : false
+            }
+        }]
     }
 })
 

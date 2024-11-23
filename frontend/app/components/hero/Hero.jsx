@@ -3,37 +3,35 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 
 const HeroBanner = () => {
-  const router = useRouter()
-  return (
-    <div className='relative w-full h-screen bg-white'>
-      <div 
-        className='absolute inset-0 bg-cover bg-center' 
-        style={{ backgroundImage: 'url("hero_bg.png")' }}
-      >
-        <div className='flex flex-col md:flex-row items-center justify-center lg:w-[80%] w-full  mx-auto h-full px-4 md:px-8'>
-          <div className='w-full md:w-1/2 p-8 flex flex-col text-center lg:text-left justify-center  bg-opacity-70'>
-            <h1 className='text-3xl md:text-4xl font-bold text-white mb-4'>
-              Learn
-              <br />
-              Explore
-              <br />
-              Upskill
-            </h1>
-            <p className='text-base md:text-lg text-white mb-6 break-normal text-justify'>
-              HackerMars is the largest and fastest-growing community of technology innovators, including startups, working professionals, freelancers, and student innovators.
-            </p>
+  const router = useRouter();
 
-            <div className='flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4'>
-              <button className='px-6 py-2 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-3xl'>
-                Explore Hackathons
-              </button>
-              <button className='px-6 py-2 bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 hover:border-gray-400 rounded-3xl focus:outline-none focus:ring-2 focus:ring-gray-500'>
-                Organize Hackathon
-              </button>
-            </div>
-          </div>
-          <div className='hidden md:block md:w-1/2'>
-            {/* This div is for future content or adjustments */}
+  return (
+    <div className="relative w-full h-screen bg-gradient-to-r from-blue-50 to-purple-50 flex items-center justify-center">
+      {/* Background overlay */}
+      <div className="absolute inset-0 bg-cover bg-center bg-opacity-70 flex items-center justify-center">
+        <div className="w-full max-w-4xl flex flex-col items-center justify-center p-4 space-y-8 text-center">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 animate-fade-in">
+            Discover, <br /> Innovate, <br /> Elevate
+          </h1>
+          <p className="text-base sm:text-lg text-gray-700 max-w-2xl leading-relaxed">
+            HackerMars is a thriving hub of tech pioneers, bringing together creators, problem-solvers, and visionaries from various fields, including startups, freelancers, and students, to push the boundaries of innovation.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            {/* Explore Hackathons Button */}
+            <button
+              className="px-8 py-3 bg-blue-100 text-blue-600 rounded-full font-semibold shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-200"
+              onClick={() => router.push('/hackathons')}
+            >
+              Find Hackathons
+            </button>
+
+            {/* Organize Hackathon Button */}
+            <button
+              className="px-8 py-3 bg-purple-100 text-purple-600 border border-purple-200 rounded-full font-semibold shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-200"
+              onClick={() => router.push('/host')}
+            >
+              Host a Hackathon
+            </button>
           </div>
         </div>
       </div>

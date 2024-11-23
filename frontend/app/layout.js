@@ -4,6 +4,8 @@ import { GlobalProvider } from "@/context_api/globalContext";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import UserRender from "./components/login/render";
+import Footer from "./components/footer/Footer";
+import Navbar from "./components/navbar/Navbar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,15 +29,21 @@ export default function RootLayout({ children }) {
     <html lang="en">
 
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
 
         <script src="https://accounts.google.com/gsi/client" async defer></script>
-          <GlobalProvider>
-            <UserRender/>
+        <GlobalProvider>
+          <Navbar />
+          <UserRender />
+          <div className='min-h-screen'>
+
             {children}
-            <ToastContainer />
-          </GlobalProvider>
+
+          </div>
+          <Footer />
+          <ToastContainer />
+        </GlobalProvider>
       </body>
     </html>
   );

@@ -5,7 +5,6 @@ import Register from '../components/register/Register'
 const page = () => {
   return (
     <>
-    <Navbar/>
     <Register/>
     </>
   )

@@ -16,13 +16,10 @@ const adminSchema = mongoose.Schema({
     hasUsersAccess : {
         type: Boolean,
     },
-    hasHackathonAccess : {
+    hasHackathonsAccess : {
         type : Boolean
     },
-    hasPaymentAccess : {
-        type :Boolean
-    },
-    hasClientsAccess : {
+    canWrite : {
         type : Boolean
     }
 })

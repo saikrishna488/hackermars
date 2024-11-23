@@ -7,7 +7,7 @@ import bcrypt from 'bcrypt';
 import path from 'path'
 import fs from 'fs'
 import jwt from 'jsonwebtoken'
-import sendOtpEmail from '../essentials/nodeMail.js';
+import {sendOtpEmail} from '../essentials/nodeMail.js';
 
 
 const router = express.Router();
@@ -23,7 +23,6 @@ router.post('/google', async (req, res) => {
         if (!token) {
             return res.status(400).json({ msg: 'Token is required', res: false });
         }
-        console.log("client id" + process.env.CLIENT_ID)
 
         // Verify the token
         const ticket = await client.verifyIdToken({
@@ -66,7 +65,7 @@ router.post('/google', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error verifying token', error);
+        console.error('Error verifying token');
         return res.status(401).json({ msg: 'Invalid token', res: false });
     }
 });
@@ -316,7 +315,7 @@ router.post('/jwt', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error', error);
+        console.error('token Error',);
         return res.status(500).json({ msg: 'Error, try again later', res: false });
     }
 });
@@ -326,8 +325,9 @@ router.post('/appeal', async (req,res)=>{
     try{
 
         const {aadhar, organization , organization_id ,phone, reason, email} = req.body
+        console.log(req.body)
 
-        if(!aadhar || !organization || !organization_id || !phone || !reason){
+        if(!aadhar || !organization || !phone || !reason){
             return res.json({
                 msg : "Provide All details",
                 res : false
@@ -336,10 +336,14 @@ router.post('/appeal', async (req,res)=>{
 
         const user = await userModel.findOne({email})
 
+        if(user.request_status == "pending" || user.request_status == "verified"){
+            throw new Error("User Has already sent Request")
+        }
+
         user.aadhar = aadhar
         user.phone = phone
         user.organization = organization
-        user.organization_id = organization_id
+        user.organization_id = organization_id || null
         user.reason = reason
         user.request_status = "pending"
 
@@ -364,6 +368,52 @@ router.post('/appeal', async (req,res)=>{
     }
 })
 
+
+// mark as read
+router.post('/markasread', async (req,res)=>{
+    try{
+        const {id, userId} = req.body;
+
+        const user = await userModel.findById(userId);
+
+        if(!user){
+            return res.json({
+                msg : "User not found",
+                res : false
+            })
+        }
+
+        const notification = user.notifications.find(notification => notification._id == id);
+
+        if(!notification){
+            return res.json({
+                msg : "Notification not found",
+                res : false
+            })
+        }
+
+        notification.isRead = true;
+
+        await user.save();
+
+        const { password: newUserPassword, google_token, ...userObject } = user._doc;
+
+        return res.json({
+            msg : "Marked as read",
+            res : true,
+            user : userObject
+        })
+
+    }
+    catch(err){
+        console.log(err)
+
+        return res.json({
+            msg : "Server Error",
+            res : false
+        })
+    }
+})
 
 
 

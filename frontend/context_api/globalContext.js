@@ -7,9 +7,9 @@ const GlobalProvider = ({children})=>{
 
     const [user,setUser] = useState({})
     const [hackathons , setHackathons] = useState([])
-    const [adminKey,setAdminKey] = useState({})
-    const [client, setClient] = useState({})
+    const [admin,setAdmin] = useState({})
     const [hackathon ,setHackathon] = useState([])
+    const [project,setProject] = useState({});
 
 
     const value = {
@@ -17,12 +17,12 @@ const GlobalProvider = ({children})=>{
         setUser,
         hackathons,
         setHackathons,
-        adminKey,
-        setAdminKey,
-        client,
-        setClient,
+        admin,
+        setAdmin,
         hackathon,
-        setHackathon
+        setHackathon,
+        project,
+        setProject
     }
 
     return (

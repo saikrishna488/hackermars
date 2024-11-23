@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const hackathonSchema = new mongoose.Schema({
-    image_url: {
+    image: {
         type: String,
         required: true,
     },
@@ -41,7 +41,11 @@ const hackathonSchema = new mongoose.Schema({
         type: [String], // Array of strings to store names or details of winners
         required: true,
     },
-    date: {
+    start_date: {
+        type: Date,
+        required: true,
+    },
+    end_date: {
         type: Date,
         required: true,
     },
@@ -57,45 +61,52 @@ const hackathonSchema = new mongoose.Schema({
         type: String, // Contact information, e.g., phone number or email
         required: true,
     },
-    fee : {
-        type : String,
+    registered_users: {
+        type: [{
+            teamName: { type: String, required: true },
+            idea: { type: String, required: true },
+            status: { type: Boolean, default: false }, // Set default as false for pending status
+            teamMembers: [{
+                name: { type: String, required: true },
+                email: { type: String, required: true }
+            }]
+        }]
     },
-    registered_users : {
-        type : [String],
+    eligibility: {
+        type: String,
     },
-    eligibility : {
-        type : String,
+    isPrivate: {
+        type: Boolean
     },
-    isPrivate :{
-        type :Boolean
+    conducted_by: {
+        type: String,
+        required: true
     },
-    start_time  : {
-        type : Date
+    max_users: {
+        type: Number,
+        required: true
     },
-    end_time : {
-        type : Date
+    client_id: {
+        type: String
     },
-    conducted_by : {
-        type :String,
-        required : true
+    location: {
+        type: String
     },
-    max_users : {
-        type : Number,
-        required : true
-    },
-    client_id : {
-        type : String
-    },
-    location : {
-        type : String
-    },
-    social_links: {
-        type: [String],
-    },
-    teams : {
-        type : Object
+    notifications: {
+        type: [{
+            message: {
+                type: String
+            },
+            date: {
+                type: Date
+            },
+            isRead: {
+                type: Boolean,
+                default: false
+            }
+        }]
     }
-    
+
 }, { timestamps: true });
 
 const hackathonModel = mongoose.model('Hackathon', hackathonSchema);

@@ -2,76 +2,226 @@
 
 import React, { useContext, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CheckSquare, FileText, User, Phone, Clipboard, Send } from 'lucide-react'
+import { CheckSquare, FileText, User, Phone, Clipboard, Send, CheckCircleIcon, MailIcon, X, Shield } from 'lucide-react'
 import { globalContext } from '@/context_api/globalContext'
 import { toast } from 'react-toastify'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
+import axios from 'axios'
 
 const Host = () => {
 
     const [confirm, setConfirm] = useState(false)
-    const {user} = useContext(globalContext)
+    const { user, setUser } = useContext(globalContext)
     const router = useRouter()
+    const [obj, setObj] = useState({
+        aadhar: "",
+        organization: "",
+        organization_id: "",
+        reason: "",
+        phone: "",
+        email: user.email || ""
+    })
 
-    useEffect(()=>{
-        if(!user?.name){
-            toast.error("Login to Host a Hackathon")
-            router.push('/login')
+    const handleRequest = async (e) => {
+
+        e.preventDefault();
+
+
+        // const {aadhar , organization, organization_id ,reason ,phone} = obj
+        console.log(obj.aadhar.length)
+        try {
+
+            const res = await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL + '/user/appeal', obj, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+
+            if (res.data.res) {
+                setUser(res.data.user)
+                toast.success(res.data.msg)
+            }
+            else {
+                toast.error(res.data.msg)
+            }
+
         }
-    },[])
+        catch (err) {
+            console.log(err)
+            toast.success("Error Occured")
+        }
+    }
 
-    
 
+
+
+    //handle continue button in rejected view
+    const handleContinue = ()=>{
+        setConfirm(true)
+    }
+
+
+    if (!user?.name) {
+        toast.error("Login to Host a Hackathon")
+        return redirect('/login')
+    }
+
+    if (user?.request_status === "pending") {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+                <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div className="text-center">
+                        <div className="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CheckCircleIcon className="w-8 h-8 text-yellow-500" />
+                        </div>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-2">Verification in Progress</h2>
+                        <p className="text-sm text-gray-600 mb-6">
+                            We're reviewing your application. This usually takes 24-48 hours.
+                        </p>
+                        <div className="space-y-3 text-xs text-gray-500 mb-6">
+                            <div className="flex items-center justify-center gap-2">
+                                <CheckCircleIcon className="w-4 h-4 text-blue-500" />
+                                <span>Application submitted successfully</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                                <MailIcon className="w-4 h-4 text-green-500" />
+                                <span>You'll receive an email once verified</span>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => router.push('/')}
+                            className="text-sm px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                        >
+                            Return to Homepage
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (user?.request_status === "rejected" && !confirm) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+                <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div className="text-center">
+                        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <X className="w-8 h-8 text-red-500" />
+                        </div>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-2">Application Not Approved</h2>
+                        <p className="text-sm text-gray-600 mb-6">
+                            Unfortunately, we couldn't verify your information. Please ensure all details are accurate and try again.
+                        </p>
+                        <button
+                            onClick={handleContinue}
+                            className="text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            Submit New Application
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (user?.request_status == "verified") {
+        router.push('/host/dashboard')
+    }
+
+    if (user?.request_status == "verified" || user?.request_status == "pending") {
+        return null
+    }
 
     return (
-        <div className="max-w-lg mt-24 mx-auto p-6 bg-white shadow-md rounded-lg">
-            {
-                !confirm ? (
-                    <div>
-                        <h4 className="text-xl font-semibold mb-4">Verification Required To Host a Hackathon</h4>
-                        <p className="mb-2">Hosting a hackathon is completely free, but to limit spam and fake events, we verify organizers before allowing them to host.</p>
-                        <p className="mb-2">Submit your application with details like college ID, organization ID, or identity proof.</p>
-                        <p className="mb-2">Our team will verify your application and enable access to your account.</p>
-                        <p className="mb-2">Each user can host only one hackathon per day.</p>
-                        <p className="mb-4">To know more, <Link href="" className="text-blue-500 underline">visit here</Link>.</p>
-                        <button onClick={()=>setConfirm(true)} className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition duration-150">Continue</button>
+        <div className="min-h-screen bg-gray-50 pt-16 pb-12 px-4">
+            <div className="max-w-md mx-auto">
+                {!confirm ? (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                                <Shield className="w-5 h-5 text-blue-500" />
+                            </div>
+                            <h2 className="text-lg font-semibold text-gray-900">Host Verification</h2>
+                        </div>
+                        
+                        <div className="space-y-4 mb-6">
+                            <p className="text-sm text-gray-600">
+                                To maintain quality and prevent misuse, we verify all hackathon organizers.
+                            </p>
+                            <div className="space-y-2">
+                                {[
+                                    "Submit your organization or student ID for verification",
+                                    "Quick review process (usually within 48 hours)",
+                                    "Host unlimited hackathons once verified",
+                                ].map((item, i) => (
+                                    <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                                        <CheckCircleIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                        <span>{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <button
+                            onClick={() => setConfirm(true)}
+                            className="w-full text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            Continue to Verification
+                        </button>
                     </div>
                 ) : (
-                    <div>
-                        <h4 className="text-xl font-semibold mb-6">Application To Host Hackathon</h4>
-                        <form className="space-y-4">
-                            <div className="flex items-center space-x-2">
-                                <CheckSquare className="text-gray-600" />
-                                <input type="text" className="border w-full p-2 rounded-md focus:outline-none focus:border-blue-500" placeholder="Aadhar Number" />
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Verification Details</h2>
+                        <form onSubmit={handleRequest} className="space-y-4">
+                            {[
+                                { icon: CheckSquare, placeholder: "Aadhar Number", value: "aadhar" },
+                                { icon: FileText, placeholder: "Organization Name", value: "organization" },
+                                { icon: Clipboard, placeholder: "Organization/Student ID", value: "organization_id" },
+                                { icon: Phone, placeholder: "Mobile Number", value: "phone", type: "tel" },
+                            ].map((field) => (
+                                <div key={field.value} className="relative">
+                                    <field.icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <input
+                                        type={field.type || "text"}
+                                        placeholder={field.placeholder}
+                                        value={obj[field.value]}
+                                        onChange={(e) => setObj({ ...obj, [field.value]: e.target.value })}
+                                        className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        maxLength={20}
+                                    />
+                                </div>
+                            ))}
+                            
+                            <div className="relative">
+                                <User className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                                <textarea
+                                    placeholder="Why do you want to host hackathons?"
+                                    value={obj.reason}
+                                    onChange={(e) => setObj({ ...obj, reason: e.target.value })}
+                                    className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    rows={3}
+                                    maxLength={255}
+                                />
                             </div>
-                            <div className="flex items-center space-x-2">
-                                <FileText className="text-gray-600" />
-                                <input type="text" className="border w-full p-2 rounded-md focus:outline-none focus:border-blue-500" placeholder="Organization Name" />
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Clipboard className="text-gray-600" />
-                                <input type="text" className="border w-full p-2 rounded-md focus:outline-none focus:border-blue-500" placeholder="Organization ID/Student ID" />
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Phone className="text-gray-600" />
-                                <input type="text" className="border w-full p-2 rounded-md focus:outline-none focus:border-blue-500" placeholder="Mobile Number" />
-                            </div>
-                            <div className="flex items-start space-x-2">
-                                <User className="text-gray-600 mt-1" />
-                                <textarea className="border w-full p-2 rounded-md focus:outline-none focus:border-blue-500" placeholder="Reason to Host Hackathon"></textarea>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <input type="checkbox" className="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-                                <label className="text-sm text-gray-600">I agree to the terms and conditions</label>
-                            </div>
-                            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition duration-150 flex items-center space-x-2">
-                                <Send className="h-4 w-4" />
-                                <span>Send Appeal</span>
+
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                <span className="text-xs text-gray-600">
+                                    I agree to the <a href="#" className="text-blue-600 hover:underline">terms and conditions</a>
+                                </span>
+                            </label>
+
+                            <button
+                                type="submit"
+                                className="w-full flex items-center justify-center gap-2 text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                <Send className="w-4 h-4" />
+                                Submit Application
                             </button>
                         </form>
                     </div>
-                )
-            }
+                )}
+            </div>
         </div>
     )
 }

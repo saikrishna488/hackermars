@@ -30,10 +30,6 @@ const Footer = () => {
               <FaEnvelope className='text-blue-400' />
               <span>support@example.com</span>
             </li>
-            <li className='flex items-center space-x-2'>
-              <FaQuestionCircle className='text-green-400' />
-              <a href='#' className='hover:underline'>Request a Demo</a>
-            </li>
             <li className='flex items-center space-x-2 cursor-pointer'>
               <FaHeadset className='text-red-400' />
               <span>Chat Support</span>

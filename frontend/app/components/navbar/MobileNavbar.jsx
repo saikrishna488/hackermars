@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Menu, X, Home, Book,Trophy,PlusCircle} from 'lucide-react'; // Import Lucide Icons
 import ProfileMenu from './ProfileMenu';
 
-const MobileNavbar = ({ isScrolled, router, user }) => {
+const MobileNavbar = ({  router, user }) => {
     const [isMenuVisible, setIsMenuVisible] = useState(false);
-    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    // const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
     return (
         <div className='lg:hidden flex flex-col items-center justify-between w-full py-2'>
-            <div className='flex w-full justify-between items-center p-4'>
+            <div className='flex w-full justify-between items-center px-2'>
                 <h5 className='text-xl font-bold text-gray-900 cursor-pointer' onClick={() => router.push('/')}>HackerMars</h5>
                 <div className='flex items-center space-x-3'>
                     <ProfileMenu user={user} />
@@ -39,9 +39,9 @@ const MobileNavbar = ({ isScrolled, router, user }) => {
                             <Home size={20} className="mr-2 text-gray-600" />
                             Home
                         </li>
-                        <li className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => router.push('/practice')}>
+                        <li className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => router.push('/projects')}>
                             <Book size={20} className="mr-2 text-gray-600" />
-                            Practice
+                            Projects
                         </li>
                         <li className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => router.push('/hackathons')}>
                             <Trophy size={20} className="mr-2 text-gray-600" />

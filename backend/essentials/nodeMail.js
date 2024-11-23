@@ -29,5 +29,27 @@ const sendOtpEmail = async (email, otp) => {
 };
 
 
+const sendEmail = async (email, subject, content) => {
+    try {
+        // Email options
+        const mailOptions = {
+            from: 'saikrishnaunique01@gmail.com', // Sender address
+            to: email,                    // Receiver's email
+            subject: subject,
+            text: content, // Plaintext body
+        };
 
-export default sendOtpEmail;
+        // Send email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent: ' + info.response);
+    } catch (error) {
+        console.error('Error sending email: ', error);
+    }
+};
+
+
+
+
+
+
+export {sendOtpEmail, sendEmail};

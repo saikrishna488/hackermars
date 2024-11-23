@@ -1,19 +1,68 @@
 "use client";
-import React, { useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { toast } from 'react-toastify';
+import {
+  Upload,
+  Calendar,
+  Users,
+  Trophy,
+  UserCheck,
+  Building,
+  Mail,
+  Phone,
+  Shield,
+  Info,
+  Clock,
+  Tag,
+  Award,
+  Plus,
+  X
+} from 'lucide-react';
 
-const ReactQuill = dynamic(() => import('react-quill'), {
-  ssr: false, // This ensures the component is only rendered on the client side
-});
-
+// const ReactQuill = dynamic(() => import('react-quill'), {
+//   ssr: false, // This ensures the component is only rendered on the client side
+// });
+import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import axios from 'axios';
+import { globalContext } from '@/context_api/globalContext';
+
+const quillModules = {
+  toolbar: [
+    ['bold', 'italic', 'underline'],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    ['link'],
+    ['clean']
+  ]
+};
+
+const quillFormats = [
+  'bold', 'italic', 'underline',
+  'list', 'bullet',
+  'link'
+];
+
+const formatDateTime = (dateString) => {
+  if (!dateString) return '';
+  
+  // If it's already in the correct format, return as is
+  if (dateString.includes('T')) {
+    return dateString.slice(0, 16); // Get YYYY-MM-DDTHH:mm format
+  }
+
+  // Convert date string to ISO format
+  const date = new Date(dateString);
+  return date.toISOString().slice(0, 16); // Get YYYY-MM-DDTHH:mm format
+};
 
 const HostHackathon = () => {
   const router = useRouter();
   const fileRef = useRef()
+  const { user, hackathon } = useContext(globalContext)
 
-  const [fields, setFields] = useState({
+  const [fields, setFields] = useState(hackathon || {
     title: '',
     image: null,
     team_size: '',
@@ -24,8 +73,9 @@ const HostHackathon = () => {
     description: '',
     partners: [],
     prizes: [],
-    date: '',
-    mode: 'public',
+    start_date: '',
+    end_date: '',
+    mode: '',
     phone: '',
     email: '',
     max_users: '',
@@ -33,8 +83,36 @@ const HostHackathon = () => {
     start_time: '',
     end_time: '',
     social_links: [],
-    location: ""
+    location: "",
+    conducted_by: user?.organization || "Google",
+    isPrivate: false,
+    client_id: user?._id
   });
+
+
+  useEffect(() => {
+
+    const fetchImage = async () => {
+      if (fields?._id) {
+
+        try {
+          const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + '/' + fields.image);
+          const blob = await response.blob(); // Step 1: Convert to Blob
+          const file = new File([blob], 'previous_image.jpg', { type: blob.type }); // Step 2: Create File
+
+
+          setFields({ ...fields, image: file })
+
+        } catch (error) {
+          console.error('Error fetching the image:', error);
+        }
+      }
+
+    }
+
+
+    fetchImage()
+  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,6 +121,8 @@ const HostHackathon = () => {
     } else {
       setFields({ ...fields, [name]: value });
     }
+
+    console.log(fields.start_date)
   };
 
   const handleAboutChange = (value) => {
@@ -64,336 +144,441 @@ const HostHackathon = () => {
     setFields({ ...fields, [arrayName]: value.split(',').map(item => item.trim()) });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
 
-    console.log(fields);
+
+
+
+  const validateFields = () => {
+    const requiredFields = [
+      'title',
+      'team_size',
+      'about',
+      'description',
+      'start_date',
+      'end_date',
+      'mode',
+      'phone',
+      'email',
+      'max_users',
+      'eligibility',
+      'image', // Added image field
+      'prizes' // Added prizes field
+    ];
+
+    let errors = "";
+
+    requiredFields.forEach(field => {
+      if (!fields[field] || (field === 'prizes' && fields.prizes.length === 0)) {
+        errors = `${field} is required`;
+      }
+    });
+
+    // Additional email format validation
+    if (fields.email && !/\S+@\S+\.\S+/.test(fields.email)) {
+      errors = 'Email format is invalid';
+    }
+
+    if (fields.mode == "Offline" && !fields.location) {
+      errors = 'Location is required';
+    }
+
+    return errors;
   };
 
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const errors = validateFields();
+
+    if (errors) {
+      // Handle errors (e.g., display error messages)
+      toast.error(errors);
+      return;
+    }
+
+    try {
+
+      const res = await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL + '/hackathon/add', fields, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      })
+
+      if (res.data.res) {
+        toast.success(res.data.msg)
+        router.push('/hackathon/' + res.data.hackathon._id)
+      }
+      else {
+        toast.success(res.data.msg)
+      }
+
+    }
+    catch (err) {
+      console.log(err)
+      toast.error("Failed to host hackathon")
+    }
+  };
+
+
+
+
+
+
+  if (!user?.name || user?.request_status != "verified") {
+    return null
+  }
+
   return (
-    <div className="container mx-auto lg:p-6 pt-24 mt-10">
-      <div className="lg:w-[60%] w-full mx-auto bg-white shadow-lg rounded-lg p-8">
-        <h2 className="text-3xl font-semibold text-center mb-6">Host Your Hackathon</h2>
+    <div className="min-h-screen bg-gray-50 pt-24 pb-16">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {hackathon?._id ? "Edit Hackathon" : "Host a New Hackathon"}
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">Fill in the details to create your hackathon event</p>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label className="block font-semibold text-lg mb-1">Title</label>
-            <input
-              type="text"
-              name="title"
-              value={fields.title}
-              onChange={handleChange}
-              className="w-full border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-400 rounded-md p-3 transition duration-150 ease-in-out"
-              placeholder="Enter the title of your hackathon"
-              required
-            />
-            <p className="text-sm text-gray-500 mt-1">Enter the title of your hackathon.</p>
-          </div>
+        {/* Main Form */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <form onSubmit={handleSubmit} className="divide-y divide-gray-100">
+            {/* Basic Details Section */}
+            <div className="p-6">
+              <h2 className="text-sm font-medium text-gray-900 mb-4">Basic Details</h2>
+              <div className="space-y-6">
+                {/* Title Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Hackathon Title
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={fields.title}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter a catchy title for your hackathon"
+                  />
+                </div>
 
-          <div className="mb-6">
-            <label className="block font-semibold text-lg mb-1">Upload Image</label>
-            <div className="flex items-center justify-between border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 transition duration-150 ease-in-out hover:bg-gray-100">
-              <input
-              ref={fileRef}
-                type="file"
-                name="image"
-                onChange={handleChange}
-                className="hidden"
-                accept="image/*"
-                required
-                id='file-upload'
-              />
-              <div onClick={() => fileRef.current.click()} className="flex-1 text-center">
-                {
-                  fields?.image ? (
-                    <span className="text-gray-600">{fields?.image?.name}</span>
-                  ) : (
-                    <>
-                      <span className="text-gray-600">Drag & drop your image here or </span>
-                      <span className="text-blue-600 cursor-pointer">browse</span>
-                    </>
-                  )
-                }
+                {/* Image Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Cover Image
+                  </label>
+                  <div 
+                    onClick={() => fileRef.current.click()}
+                    className="relative group cursor-pointer"
+                  >
+                    <div className="flex items-center justify-center h-32 bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                      <input
+                        ref={fileRef}
+                        type="file"
+                        name="image"
+                        onChange={handleChange}
+                        className="hidden"
+                        accept="image/*"
+                      />
+                      <div className="text-center">
+                        <div className="flex justify-center">
+                          <Upload className="h-6 w-6 text-gray-400" />
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {fields?.image?.name || "Click to upload or drag and drop"}
+                        </p>
+                        <p className="text-xs text-gray-400">PNG, JPG up to 10MB</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-1">Upload an image or logo for the hackathon.</p>
-          </div>
 
-          <div className="mb-6">
-            <label className="block font-semibold text-gray-700 mb-2">Team Size</label>
-            <select
-              name="team_size"
-              value={fields.team_size}
-              onChange={handleChange}
-              className="w-full border border-gray-300 p-3 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
-              required
-            >
-              <option value="" disabled>Select Team Size</option>
-              <option value="1-2">1-2</option>
-              <option value="1-3">1-3</option>
-              <option value="1-4">1-4</option>
-              <option value="1">1</option>
-            </select>
-            <p className="text-sm text-gray-500 mt-2">Select the maximum team size allowed.</p>
-          </div>
+            {/* Description Section */}
+            <div className="p-6">
+              <h2 className="text-sm font-medium text-gray-900 mb-4">Description & Details</h2>
+              <div className="space-y-6">
+                {/* About Editor */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Info className="w-4 h-4 text-gray-400" />
+                    <label className="block text-sm font-medium text-gray-700">
+                      Brief Overview
+                    </label>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <ReactQuill
+                      value={fields.about}
+                      onChange={handleAboutChange}
+                      modules={quillModules}
+                      formats={quillFormats}
+                      theme="snow"
+                      placeholder="Write a brief overview of your hackathon..."
+                      className="bg-white [&_.ql-container]:!min-h-[100px] [&_.ql-toolbar]:!border-0 [&_.ql-toolbar]:border-b [&_.ql-toolbar]:!bg-gray-50 [&_.ql-toolbar]:!px-3 [&_.ql-container]:!border-0 [&_.ql-editor]:!px-3 [&_.ql-editor]:!py-2 [&_.ql-editor]:min-h-[100px]"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    A short summary that appears in hackathon listings
+                  </p>
+                </div>
 
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Mode</label>
-            <select
-              name="mode"
-              value={fields.mode}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              required
-            >
-              <option value="" disabled>Select Mode</option>
-              <option value="online">Online</option>
-              <option value="offline">Offline</option>
-            </select>
-            <p className="text-sm text-gray-500 mt-1">Choose whether the hackathon is online or offline.</p>
-          </div>
-
-          {fields.mode === 'offline' && (
-            <div className="mb-4">
-              <label className="block font-medium mb-1">Location</label>
-              <input
-                type="text"
-                name="location"
-                value={fields.location}
-                onChange={handleChange}
-                className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., 1234 Main St, Hyderabad, Telangana"
-                required={fields.mode === 'offline'}
-              />
-              <p className="text-sm text-gray-500">Provide the physical location for the event. Example: 1234 Main St, Hyderabad, Telangana</p>
+                {/* Description Editor */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Shield className="w-4 h-4 text-gray-400" />
+                    <label className="block text-sm font-medium text-gray-700">
+                      Detailed Description
+                    </label>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <ReactQuill
+                      value={fields.description}
+                      onChange={handleDescriptionChange}
+                      modules={quillModules}
+                      formats={quillFormats}
+                      theme="snow"
+                      placeholder="Provide detailed information about rules, requirements, and guidelines..."
+                      className="bg-white [&_.ql-container]:!min-h-[200px] [&_.ql-toolbar]:!border-0 [&_.ql-toolbar]:border-b [&_.ql-toolbar]:!bg-gray-50 [&_.ql-toolbar]:!px-3 [&_.ql-container]:!border-0 [&_.ql-editor]:!px-3 [&_.ql-editor]:!py-2 [&_.ql-editor]:min-h-[200px]"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Detailed information about your hackathon, including rules and guidelines
+                  </p>
+                </div>
+              </div>
             </div>
-          )}
 
+            {/* Event Details Section */}
+            <div className="p-6">
+              <h2 className="text-sm font-medium text-gray-900 mb-4">Event Details</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Date Inputs */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Start Date & Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    name="start_date"
+                    value={fields.start_date && formatDateTime(fields.start_date)}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
 
-          <div className="mb-6">
-            <label className="block font-semibold text-gray-700 mb-2">About</label>
-            <ReactQuill
-              name="about"
-              value={fields.about}
-              onChange={handleAboutChange}
-              rows="4"
-              className="w-full border border-gray-300 p-3 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out resize-none"
-              placeholder="Write a brief description of the hackathon..."
-              required
-            />
-            <p className="text-sm text-gray-500 mt-2">Write a brief description of the hackathon.</p>
-          </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    End Date & Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    name="end_date"
+                    value={fields.end_date && formatDateTime(fields.end_date)}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
 
-          <div className="mb-6">
-            <label className="block font-semibold text-gray-700 mb-2">Description</label>
-            <ReactQuill
-              theme="snow"
-              value={fields.description}
-              onChange={handleDescriptionChange}
-              className="rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Provide a detailed description of the hackathon..."
-            />
-            <p className="text-sm text-gray-500 mt-2">You can format the description using bold, italic, lists, and more.</p>
-          </div>
+                {/* Other Fields */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Team Size
+                  </label>
+                  <input
+                    type="number"
+                    name="team_size"
+                    value={fields.team_size}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    min={1}
+                  />
+                </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Maximum Teams
+                  </label>
+                  <input
+                    type="number"
+                    name="max_users"
+                    value={fields.max_users}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    min={1}
+                  />
+                </div>
 
-          <div className="mb-6">
-            <label className="block font-semibold text-gray-700 mb-2">Themes</label>
-            <input
-              type="text"
-              name="themes"
-              onChange={(e) => handleArrayChange(e, 'themes')}
-              className="w-full border border-gray-300 p-3 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
-              placeholder="Enter relevant themes (comma-separated)"
-            />
-            <p className="text-sm text-gray-500 mt-2">Enter relevant themes (comma-separated).</p>
-          </div>
+                <div className="col-span-full">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Shield className="w-4 h-4 text-gray-400" />
+                    <label className="block text-sm font-medium text-gray-700">
+                      Eligibility Requirements
+                    </label>
+                  </div>
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      name="eligibility"
+                      value={fields.eligibility}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g., Open to all college students, Age 18-25, etc."
+                    />
+                    
+                    {/* Mode Selection */}
+                    <div className="flex items-center space-x-4">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="mode"
+                          value="Online"
+                          checked={fields.mode === "Online"}
+                          onChange={handleChange}
+                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Online</span>
+                      </label>
+                      
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="mode"
+                          value="Offline"
+                          checked={fields.mode === "Offline"}
+                          onChange={handleChange}
+                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Offline</span>
+                      </label>
+                    </div>
 
-          <div className="mb-6">
-            <label className="block font-semibold text-gray-700 mb-2">Judges</label>
-            <input
-              type="text"
-              name="judges"
-              onChange={(e) => handleArrayChange(e, 'judges')}
-              className="w-full border border-gray-300 p-3 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
-              placeholder="List the judges (comma-separated)"
-            />
-            <p className="text-sm text-gray-500 mt-2">List the judges (comma-separated).</p>
-          </div>
+                    {/* Location input - shows only when mode is Offline */}
+                    {fields.mode === "Offline" && (
+                      <div className="mt-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Building className="w-4 h-4 text-gray-400" />
+                          <label className="block text-sm font-medium text-gray-700">
+                            Event Location
+                          </label>
+                        </div>
+                        <input
+                          type="text"
+                          name="location"
+                          value={fields.location}
+                          onChange={handleChange}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Enter the venue address"
+                        />
+                      </div>
+                    )}
 
-          <div className="mb-6">
-            <label className="block font-semibold text-gray-700 mb-2">Organizers</label>
-            <input
-              type="text"
-              name="organizers"
-              onChange={(e) => handleArrayChange(e, 'organizers')}
-              className="w-full border border-gray-300 p-3 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
-              placeholder="List the organizers (comma-separated)"
-            />
-            <p className="text-sm text-gray-500 mt-2">List the organizers (comma-separated).</p>
-          </div>
+                    {/* Private/Public Selection */}
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900">Event Visibility</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">Control who can view and register for your event</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={fields.isPrivate}
+                          onChange={(e) => setFields({ ...fields, isPrivate: e.target.checked })}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        <span className="ml-2 text-sm text-gray-700">
+                          {fields.isPrivate ? 'Private' : 'Public'}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500">
+                    Specify who can participate and how the event will be conducted
+                  </p>
+                </div>
+              </div>
+            </div>
 
+            {/* Contact & Additional Info */}
+            <div className="p-6">
+              <h2 className="text-sm font-medium text-gray-900 mb-4">Additional Information</h2>
+              <div className="space-y-6">
+                {/* Array Inputs */}
+                {[
+                  { label: "Themes", name: "themes", icon: Tag, placeholder: "AI, Blockchain, IoT..." },
+                  { label: "Prizes", name: "prizes", icon: Trophy, placeholder: "1st Prize: $1000, 2nd Prize: $500..." },
+                  { label: "Judges", name: "judges", icon: UserCheck, placeholder: "John Doe, Jane Smith..." },
+                  { label: "Organizers", name: "organizers", icon: Users, placeholder: "Tech Club, Innovation Lab..." },
+                  { label: "Partners", name: "partners", icon: Building, placeholder: "Google, Microsoft, AWS..." }
+                ].map((field) => (
+                  <div key={field.name}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <field.icon className="w-4 h-4 text-gray-400" />
+                      <label className="block text-sm font-medium text-gray-700">
+                        {field.label}
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      name={field.name}
+                      value={fields[field.name]?.join(', ')}
+                      onChange={(e) => handleArrayChange(e, field.name)}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder={field.placeholder}
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Separate multiple entries with commas
+                    </p>
+                  </div>
+                ))}
 
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Partners</label>
-            <input
-              type="text"
-              name="partners"
-              onChange={(e) => handleArrayChange(e, 'partners')}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              placeholder="List partners involved (comma-separated)"
-            />
-            <p className="text-sm text-gray-500 mt-1">List partners involved (comma-separated).</p>
-          </div>
+                {/* Contact Info */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Contact Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={fields.email}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
 
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Prizes</label>
-            <input
-              type="text"
-              name="prizes"
-              onChange={(e) => handleArrayChange(e, 'prizes')}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              placeholder="List the prizes for the winners (comma-separated)"
-            />
-            <p className="text-sm text-gray-500 mt-1">List the prizes for the winners (comma-separated).</p>
-          </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Contact Phone
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={fields.phone}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Date</label>
-            <input
-              type="date"
-              name="date"
-              value={fields.date}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              required
-            />
-            <p className="text-sm text-gray-500 mt-1">Select the date of the hackathon.</p>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Start Time</label>
-            <input
-              type="time"
-              name="start_time"
-              value={fields.start_time}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              required
-            />
-            <p className="text-sm text-gray-500 mt-1">Select the start time of the hackathon.</p>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">End Time</label>
-            <input
-              type="time"
-              name="end_time"
-              value={fields.end_time}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              required
-            />
-            <p className="text-sm text-gray-500 mt-1">Select the end time of the hackathon.</p>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Contact Phone</label>
-            <input
-              type="text"
-              name="phone"
-              value={fields.phone}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              placeholder="Enter contact number"
-            />
-            <p className="text-sm text-gray-500 mt-1">Provide a contact number for participants.</p>
-          </div>
-
-
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Contact Email</label>
-            <input
-              type="email"
-              name="email"
-              value={fields.email}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              placeholder="Enter contact email"
-              required
-            />
-            <p className="text-sm text-gray-500 mt-1">Provide an email for participants to reach out.</p>
-          </div>
-
-
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Eligibility</label>
-            <input
-              type="text"
-              name="eligibility"
-              value={fields.eligibility}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-            />
-            <p className="text-sm text-gray-500 mt-1">Specify who is eligible to participate.</p>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Visibility</label>
-            <select
-              name="mode"
-              value={fields.mode}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              required
-            >
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-            </select>
-            <p className="text-sm text-gray-500 mt-1">Choose whether the hackathon is public or private.</p>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-lg font-medium text-gray-700 mb-2">Maximum Users</label>
-            <input
-              type="number"
-              name="max_users"
-              value={fields.max_users}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              required
-              min={1}
-            />
-            <p className="text-sm text-gray-500 mt-1">Enter the maximum number of participants allowed.</p>
-          </div>
-
-          <div className="mb-4">
-            <label className="block font-medium mb-1">Social Links</label>
-            <input
-              type="text"
-              name="social_links"
-              onChange={(e) => handleArrayChange(e, 'social_links')}
-              className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter social media links (comma-separated)"
-            />
-            <p className="text-sm text-gray-500">Provide social media links (comma-separated) for participants to follow.</p>
-          </div>
-
-
-          <div className="flex justify-center mt-6">
-            <button
-              type="submit"
-              className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200 shadow-md"
-            >
-              Submit
-            </button>
-          </div>
-
-        </form>
+            {/* Submit Button */}
+            <div className="px-6 py-4 bg-gray-50">
+              <button
+                type="submit"
+                className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                {hackathon?._id ? "Update Hackathon" : "Create Hackathon"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
 export default HostHackathon;
-

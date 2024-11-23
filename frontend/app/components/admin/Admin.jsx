@@ -4,16 +4,18 @@ import { globalContext } from '@/context_api/globalContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Key, CheckCircle, AlertCircle } from 'lucide-react'; // Import Lucide icons
+import { useRouter } from 'next/navigation';
 
 const Admin = () => {
-  const { adminKey, setAdmin } = useContext(globalContext);
+  const { admin, setAdmin } = useContext(globalContext);
   const [key, setKey] = useState('');
+  const router = useRouter()
 
   const handleAdmin = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL + 'user/admin', {
+      const res = await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL + '/admin/login', {
         key,
       }, {
         headers: {
@@ -23,17 +25,21 @@ const Admin = () => {
 
       if (res.data.res) {
         setAdmin(res.data.admin);
-        toast(<><CheckCircle color="green" /> Welcome, {res.data.admin.name}</>);
+        router.push('/admin/dashboard')
+        toast.success(res.data.msg);
       } else {
-        toast(<><AlertCircle color="red" /> Check your key and try again</>);
+        toast.error("Check your key and try again")
       }
     } catch (err) {
       toast.error("Error occurred");
     }
   };
 
-  const AdminSection = ()=> (
-    <div className="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full">
+
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full">
         <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">Admin Verification</h2>
         <form onSubmit={handleAdmin} className="space-y-6">
           <div className="relative">
@@ -54,11 +60,7 @@ const Admin = () => {
           </button>
         </form>
       </div>
-  )
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <AdminSection/>
     </div>
   );
 };

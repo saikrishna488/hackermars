@@ -5,8 +5,9 @@ import React from 'react'
 const page = () => {
   return (
     <>
-    <Navbar/>
+    <div className='min-h-screen'>
     <Dashboard/>
+    </div>
     </>
   )
 }

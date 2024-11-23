@@ -92,20 +92,18 @@ const Login = () => {
         try{
             const idToken = response.credential;
 
-
         const res = await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL+'/user/google',{
             token : idToken
         })
         
         const data = res.data;
+        console.log(data.res)
 
         if(data.res){
-            toast.successt("Sign in successfull");
+            toast.success("Sign in successfull");
             setUser(data.user)
             router.push('/')
-            toast.success("Welcome "+data.user.name)
-
-            setCookie("token",idToken,30)
+            setCookie("google_token",idToken,30)
             
         }
         else{

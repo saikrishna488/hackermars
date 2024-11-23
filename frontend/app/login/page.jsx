@@ -5,7 +5,6 @@ import Login from '../components/login/Login'
 const page = () => {
   return (
     <>
-    <Navbar/>
     <Login/>
     </>
   )
