@@ -1,24 +1,26 @@
 import express from 'express';
 import { OAuth2Client } from 'google-auth-library';
-import userModel from '../models/userModel.js'; 
+import userModel from '../models/userModel.js';
 import otpModel from '../models/otpModel.js';
-import multer  from 'multer';
+import multer from 'multer';
 import bcrypt from 'bcrypt';
 import path from 'path'
 import fs from 'fs'
 import jwt from 'jsonwebtoken'
-import {sendOtpEmail} from '../essentials/nodeMail.js';
+import { sendOtpEmail } from '../essentials/nodeMail.js';
 
 
 const router = express.Router();
 const client = new OAuth2Client(process.env.CLIENT_ID);
-const upload = multer({dest : 'uploads/'})
+const upload = multer({ dest: 'uploads/' })
 const JWT_SECRET = process.env.JWT_SECRET || '8106629402';
 
 
 router.post('/google', async (req, res) => {
     try {
         const { token } = req.body;
+
+        console.log(process.env.CLIENT_ID)
 
         if (!token) {
             return res.status(400).json({ msg: 'Token is required', res: false });
@@ -30,8 +32,8 @@ router.post('/google', async (req, res) => {
             audience: process.env.CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
         });
 
+
         if (!ticket) {
-            
             return res.status(400).json({ msg: 'Invalid token', res: false });
         }
 
@@ -53,19 +55,19 @@ router.post('/google', async (req, res) => {
                 profile_url,
                 login_type: "google",
                 google_token: token,
-                is_verified : true
+                is_verified: true
             });
         }
 
-        const {password, ...userObj} = user._doc;
+        const { password, ...userObj } = user._doc;
 
         return res.json({
-            user : userObj,
+            user: userObj,
             res: true,
         });
 
     } catch (error) {
-        console.error('Error verifying token');
+        console.error('Error verifying token', error);
         return res.status(401).json({ msg: 'Invalid token', res: false });
     }
 });
@@ -183,7 +185,7 @@ router.post('/otp', async (req, res) => {
             });
         }
 
-        const verify = await otpModel.findOne({ otp,email });
+        const verify = await otpModel.findOne({ otp, email });
 
         if (!verify) { // Corrected condition
             return res.json({
@@ -193,7 +195,7 @@ router.post('/otp', async (req, res) => {
         }
 
         // Delete OTP after verification
-        await otpModel.deleteOne({otp})
+        await otpModel.deleteOne({ otp })
 
         const user = await userModel.findOne({ email });
 
@@ -235,7 +237,7 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        const user = await userModel.findOne({ email, is_verified :true });
+        const user = await userModel.findOne({ email, is_verified: true });
         if (!user) {
             return res.json({
                 msg: "User doesn't exist",
@@ -243,7 +245,7 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        if(!user.password){
+        if (!user.password) {
             return res.json({
                 msg: "Sign in using Google",
                 res: false
@@ -321,26 +323,25 @@ router.post('/jwt', async (req, res) => {
 });
 
 
-router.post('/appeal', async (req,res)=>{
-    try{
+router.post('/appeal', async (req, res) => {
+    try {
 
-        const {aadhar, organization , organization_id ,phone, reason, email} = req.body
+        const { organization, organization_id, phone, reason, email } = req.body
         console.log(req.body)
 
-        if(!aadhar || !organization || !phone || !reason){
+        if (!organization || !phone || !reason) {
             return res.json({
-                msg : "Provide All details",
-                res : false
+                msg: "Provide All details",
+                res: false
             })
         }
 
-        const user = await userModel.findOne({email})
+        const user = await userModel.findOne({ email })
 
-        if(user.request_status == "pending" || user.request_status == "verified"){
+        if (user.request_status == "pending" || user.request_status == "verified") {
             throw new Error("User Has already sent Request")
         }
 
-        user.aadhar = aadhar
         user.phone = phone
         user.organization = organization
         user.organization_id = organization_id || null
@@ -352,43 +353,43 @@ router.post('/appeal', async (req,res)=>{
         const { password: newUserPassword, google_token, ...userObject } = user._doc;
 
         return res.json({
-            msg : "Application sent wait for approval",
-            res : true,
-            user : userObject
+            msg: "Application sent wait for approval",
+            res: true,
+            user: userObject
         })
 
     }
-    catch(err){
+    catch (err) {
         console.log(err)
 
         return res.json({
-            msg : "Server Error",
-            res : false
+            msg: "Server Error",
+            res: false
         })
     }
 })
 
 
 // mark as read
-router.post('/markasread', async (req,res)=>{
-    try{
-        const {id, userId} = req.body;
+router.post('/markasread', async (req, res) => {
+    try {
+        const { id, userId } = req.body;
 
         const user = await userModel.findById(userId);
 
-        if(!user){
+        if (!user) {
             return res.json({
-                msg : "User not found",
-                res : false
+                msg: "User not found",
+                res: false
             })
         }
 
         const notification = user.notifications.find(notification => notification._id == id);
 
-        if(!notification){
+        if (!notification) {
             return res.json({
-                msg : "Notification not found",
-                res : false
+                msg: "Notification not found",
+                res: false
             })
         }
 
@@ -399,18 +400,244 @@ router.post('/markasread', async (req,res)=>{
         const { password: newUserPassword, google_token, ...userObject } = user._doc;
 
         return res.json({
-            msg : "Marked as read",
-            res : true,
-            user : userObject
+            msg: "Marked as read",
+            res: true,
+            user: userObject
+        })
+
+    }
+    catch (err) {
+        console.log(err)
+
+        return res.json({
+            msg: "Server Error",
+            res: false
+        })
+    }
+})
+
+
+router.post('/upload-profile', upload.single('image'), async (req, res) => {
+
+    try {
+
+        const image = req.file;
+        const { userId } = req.body;
+
+        console.log(req.file, userId)
+
+        if (!userId || !image) {
+            return res.json({
+                msg: "User not found",
+                res: false
+            })
+        }
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.json({
+                msg: "User not found...",
+                res: false
+            })
+        }
+
+        const newFileName = `${user.email}${path.extname(image.originalname)}`;
+        const newPath = path.join('uploads/', newFileName);
+
+        // Use async rename function for non-blocking I/O
+        await fs.promises.rename(image.path, newPath);
+
+        // Update the path to the new file location
+        req.file.path = newPath;
+
+        user.profile_url = req.file.path;
+
+        await user.save();
+
+        const { password: newUserPassword, google_token, ...userObject } = user._doc;
+
+        return res.json({
+            msg: "Profile Image Updated",
+            res: true,
+            user: userObject
+        })
+
+    } catch (error) {
+        console.error('Error', error);
+        return res.status(500).json({ msg: 'Error, try again later', res: false });
+    }
+});
+
+
+
+//update profile
+router.post('/update-profile', async (req, res) => {
+    try {
+
+        const { oldpassword, newpassword, userId, name } = req.body;
+        
+
+        if (!name || !userId) {
+            return res.json({
+                msg: "Provide all details",
+                res: false
+            })
+        }
+
+        const user = await userModel.findById(userId);
+
+        if (!user) {
+            return res.json({
+                msg: "User not found",
+                res: false
+            })
+        }
+
+        if (oldpassword && newpassword) {
+
+
+            if(oldpassword === newpassword){
+
+                return res.json({
+                    msg: "Old and New Passwords are same",
+                    res: false
+                })
+
+            }
+
+            console.log(oldpassword, newpassword)
+
+
+            const isMatch = await bcrypt.compare(oldpassword, user.password);
+            if (!isMatch) {
+                return res.json({
+                    msg: "Invalid Password",
+                    res: false
+                })
+            }
+
+            const hashedPassword = await bcrypt.hash(newpassword, 10);
+            user.password = hashedPassword;
+        }
+
+        user.name = name;
+
+        await user.save();
+
+        return res.json({
+            msg: "Profile Updated",
+            res: true
+        })
+
+    }
+    catch (err) {
+        console.log(err)
+
+        return res.status(500).json({
+            msg: "server error",
+            res: false
+        })
+    }
+})
+
+
+router.post('/send-otp', async (req,res)=>{
+
+    try{
+
+        const {email} = req.body;
+
+        if(!email){
+            return res.json({
+                msg: "Email is required",
+                res: false
+            })
+        }
+
+        const user = await userModel.findOne({email});
+
+        if(!user){
+            return res.json({
+                msg: "User not found",
+                res: false
+            })
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+
+        await otpModel.findOneAndUpdate(
+            {email},
+            {otp},
+            {upsert: true, new: true}
+        )
+
+        await sendOtpEmail(email, otp);
+
+        return res.json({
+            msg: "OTP sent to your email",
+            res: true
         })
 
     }
     catch(err){
         console.log(err)
+        return res.json({
+            msg: "Server Error",
+            res: false
+        })
+    }
+})
+
+
+router.post('/verify-otp', async (req,res)=>{
+
+    try{
+
+        const {email, otp, newPassword} = req.body;
+
+        if(!email || !otp || !newPassword){
+            return res.json({
+                msg: "Enter all details",
+                res: false
+            })
+        }
+
+        const verify = await otpModel.findOne({email, otp});
+
+        if(!verify){
+            return res.json({
+                msg: "Invalid OTP",
+                res: false
+            })
+        }
+
+        await otpModel.deleteOne({otp});
+
+        const user = await userModel.findOne({email});
+
+        if(!user){
+            return res.json({
+                msg: "User not found",
+                res: false
+            })
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+
+        await user.save();
 
         return res.json({
-            msg : "Server Error",
-            res : false
+            msg: "Password reset successfully",
+            res: true
+        })
+
+    }
+    catch(err){
+        console.log(err)
+        return res.json({
+            msg: "Server Error",
+            res: false
         })
     }
 })

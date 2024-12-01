@@ -1,31 +1,59 @@
 "use client";
-
 import React, { useState, useEffect, useContext } from 'react';
-import { AiOutlineMail, AiOutlineLock } from 'react-icons/ai';
+import { AiOutlineMail, AiOutlineLock, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { FaGoogle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { globalContext } from '@/context_api/globalContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Code } from 'lucide-react';
+
+const InputField = ({ icon: Icon, type, placeholder, name, value, onChange }) => (
+    <div className="relative">
+        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
+        <input
+            type={type}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            className="w-full px-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl
+        focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+        transition-all duration-200 text-gray-600 text-sm placeholder:text-gray-400"
+        />
+    </div>
+);
+
+
+//set cookie function
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Convert days to milliseconds
+        expires = `; expires=${date.toUTCString()}`;
+    }
+    document.cookie = `${name}=${value || ""}${expires}; path=/; secure; samesite=strict`;
+}
 
 const Login = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const {setUser} = useContext(globalContext);
+    const [formData, setFormData] = useState({ email: '', password: '' });
+    const { setUser } = useContext(globalContext);
     const router = useRouter();
 
     useEffect(() => {
         const initializeGoogleSignIn = () => {
             window.google.accounts.id.initialize({
-                client_id: '726105873846-7rr65gueb94pmgoj2invg1gb4iuvdpft.apps.googleusercontent.com', // Replace with your client ID
-                callback: handleLoginSuccess,      // Callback function on success
+                client_id: "584904539504-dptdc09i4cbjl4dglgdnli5nh79t55rl.apps.googleusercontent.com",
+                callback: handleLoginSuccess,
             });
         };
 
-        if (window.google && window.google.accounts) {
+        if (window.google?.accounts) {
             initializeGoogleSignIn();
         } else {
-            // Load Google Identity Services API
             const script = document.createElement('script');
             script.src = "https://accounts.google.com/gsi/client";
             script.async = true;
@@ -34,172 +62,157 @@ const Login = () => {
         }
     }, []);
 
-    const handleLogin = async (e)=>{
-
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const formData  = new FormData(e.target)
-
-        const userData = {
-            email: formData.get('email'),
-            password: formData.get('password'),
-        };
-
-        if (!userData.email || !userData.password) {
-            toast.error("All fields are required.");
+        if (!formData.email || !formData.password) {
+            toast.error("All fields are required");
             return;
         }
-        try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, formData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
 
-            console.log(res.data)
+        try {
+            const res = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`,
+                formData,
+                { headers: { 'Content-Type': 'application/json' } }
+            );
 
             if (res.data.res) {
-                toast.success("Login successful!");
-                setUser(res.data.user)
-                setCookie("token", res.data.token, 30)
-                router.push('/'); // Redirect to login after successful registration
+                toast.success("Welcome back!");
+                setUser(res.data.user);
+                setCookie("token", res.data.token, 30);
+                router.push('/');
             } else {
                 toast.error(res.data.msg);
             }
         } catch (error) {
             toast.error("Login failed. Please try again.");
         }
-
-    }
-
-
-
-    function setCookie(name, value, days) {
-        let expires = "";
-        if (days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Convert days to milliseconds
-            expires = `; expires=${date.toUTCString()}`;
-        }
-        document.cookie = `${name}=${value || ""}${expires}; path=/; secure; samesite=strict`;
-    }
-
-
-
-
+    };
 
     const handleLoginSuccess = async (response) => {
 
-        try{
-            const idToken = response.credential;
+        try {
+            const res = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/google`,
+                { token: response.credential }
+            );
 
-        const res = await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL+'/user/google',{
-            token : idToken
-        })
-        
-        const data = res.data;
-        console.log(data.res)
-
-        if(data.res){
-            toast.success("Sign in successfull");
-            setUser(data.user)
-            router.push('/')
-            setCookie("google_token",idToken,30)
-            
+            if (res.data.res) {
+                toast.success("Welcome back!");
+                setUser(res.data.user);
+                setCookie("google_token", response.credential, 30);
+                router.push('/');
+            } else {
+                toast.error("Authentication failed. Please try another method.");
+            }
+        } catch (err) {
+            toast.error("Authentication failed. Please try again.");
+            console.log(err);
         }
-        else{
-            toast.error("Failed Try Another method");
-        }
-
-        }
-        catch(err){
-            toast("Failed Try Another method")
-        }
-        
-    };
-
-    const handleGoogleSignIn = () => {
-        window.google.accounts.id.prompt(); // Triggers the Google Sign-In popup
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen pt-20">
-            <div className="bg-white rounded-xl shadow-xl p-8 max-w-lg w-full">
-                <h2 className="text-3xl font-extrabold text-center mb-6 text-gray-800">Login</h2>
-                <form onSubmit={handleLogin}>
-                    {/* Username/Email Field */}
-                    <div className="mb-6">
-                        <label className="block text-gray-700 font-semibold mb-2" htmlFor="email">
-                            Username or Email
-                        </label>
-                        <div className="relative">
-                            <AiOutlineMail className="absolute left-3 top-3 text-xl text-gray-400" />
-                            <input
-                                type="text"
-                                id="email"
+        <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-12 pt-20">
+            <div className="w-full max-w-md">
+                {/* Logo/Brand */}
+                <div className="text-center mb-8">
+                    <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-blue-700 
+    rounded-xl mx-auto mb-4 flex items-center justify-center shadow-xl shadow-blue-500/20">
+                        <Code className="w-6 h-6 text-white" /> {/* Replaced H with Code icon */}
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
+                    <p className="text-gray-500 mt-2">Please enter your details</p>
+                </div>
+
+                {/* Login Form */}
+                <div className="bg-white p-8 rounded-2xl shadow-xl shadow-gray-200/50">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Email</label>
+                            <InputField
+                                icon={AiOutlineMail}
+                                type="email"
                                 name="email"
-                                placeholder="Enter your username or email"
-                                className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                placeholder="Enter your email"
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-gray-700">Password</label>
+                                <Link
+                                    href="/forgot-password"
+                                    className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                                >
+                                    Forgot password?
+                                </Link>
+                            </div>
+                            <div className="relative">
+                                <InputField
+                                    icon={AiOutlineLock}
+                                    type={passwordVisible ? "text" : "password"}
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setPasswordVisible(!passwordVisible)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                >
+                                    {passwordVisible ? (
+                                        <AiOutlineEyeInvisible className="text-xl" />
+                                    ) : (
+                                        <AiOutlineEye className="text-xl" />
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 
+                text-white text-sm font-semibold rounded-xl hover:from-blue-700 
+                hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                focus:ring-offset-2 transition-all duration-200 shadow-lg shadow-blue-500/20"
+                        >
+                            Sign in
+                        </button>
+                    </form>
+
+                    <div className="relative my-8">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-4 bg-white text-gray-500">or continue with</span>
                         </div>
                     </div>
 
-                    {/* Password Field */}
-                    <div className="mb-6">
-                        <label className="block text-gray-700 font-semibold mb-2" htmlFor="password">
-                            Password
-                        </label>
-                        <div className="relative">
-                            <AiOutlineLock className="absolute left-3 top-3 text-xl text-gray-400" />
-                            <input
-                                type={passwordVisible ? "text" : "password"}
-                                id="password"
-                                name="password"
-                                placeholder="Enter your password"
-                                className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Show Password Checkbox */}
-                    <div className="flex items-center mb-6">
-                        <input
-                            type="checkbox"
-                            className="form-checkbox h-5 w-5 text-indigo-600"
-                            onChange={() => setPasswordVisible(!passwordVisible)}
-                        />
-                        <span className="ml-2 text-gray-700">Show Password</span>
-                    </div>
-
-                    {/* Login Button */}
                     <button
-                        type="submit"
-                        className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 mb-4"
+                        onClick={() => window.google.accounts.id.prompt()}
+                        className="w-full py-3.5 px-4 bg-white border border-gray-200 rounded-xl
+              text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none 
+              focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 transition-all 
+              duration-200 flex items-center justify-center gap-3"
                     >
-                        Login
+                        <FaGoogle className="text-lg text-red-500" />
+                        Sign in with Google
                     </button>
 
-                    {/* Custom Google Sign-In Button */}
-                    <div className="flex justify-center">
-                        <button
-                            type="button"
-                            onClick={handleGoogleSignIn}
-                            className="flex items-center justify-center w-full bg-white text-gray-700 border border-gray-300 font-semibold py-3 px-4 rounded-lg hover:bg-gray-100 transition duration-300"
+                    <p className="mt-8 text-center text-sm text-gray-500">
+                        Don't have an account?{' '}
+                        <Link
+                            href="/register"
+                            className="font-semibold text-blue-600 hover:text-blue-700"
                         >
-                            <FaGoogle className="mr-3 text-2xl text-red-600" /> {/* Red color for Google icon */}
-                            <span>Sign in with Google</span>
-                        </button>
-                    </div>
-
-                    {/* Register Link */}
-                    <div className="text-center mt-6">
-                        <p className="text-gray-600">
-                            New here?{" "}
-                            <Link href="/register" className="text-indigo-600 font-semibold hover:underline">
-                                Register
-                            </Link>
-                        </p>
-                    </div>
-                </form>
+                            Sign up
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );

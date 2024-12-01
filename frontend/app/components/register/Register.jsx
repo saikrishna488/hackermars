@@ -1,19 +1,39 @@
 "use client";
-
 import React, { useState } from "react";
-import { AiOutlineUser, AiOutlineMail, AiOutlineLock, AiOutlinePicture } from "react-icons/ai";
+import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
+import { Upload, Code, Eye, EyeOff } from 'lucide-react';
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const InputField = ({ icon: Icon, label, type, name, value, onChange, placeholder }) => (
+  <div className="space-y-2">
+    <label className="block text-sm font-medium text-gray-700">{label}</label>
+    <div className="relative">
+      <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full px-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl
+          focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+          transition-all duration-200 text-gray-600 text-sm placeholder:text-gray-400"
+      />
+    </div>
+  </div>
+);
+
 const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [otp,setOtp] = useState("")
+  const [otp, setOtp] = useState("");
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -46,6 +66,7 @@ const Register = () => {
     }
 
     try {
+      setLoading(true);
       const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -59,6 +80,7 @@ const Register = () => {
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     }
+    setLoading(false);
   };
 
   const handleImageChange = (event) => {
@@ -68,122 +90,186 @@ const Register = () => {
 
   const handleOtp = async (e) => {
     try {
-        e.preventDefault()
-        // Check if email and otp are provided
-        if (!email || !otp) {
-            toast.error("Please enter both email and OTP.");
-            return;
-        }
+      e.preventDefault()
+      setLoading(true);
+      // Check if email and otp are provided
+      if (!email || !otp) {
+        toast.error("Please enter both email and OTP.");
+        return;
+      }
 
-        // Send request to backend
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/otp`, {
-            email,
-            otp
-        });
+      // Send request to backend
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/otp`, {
+        email,
+        otp
+      });
 
-        // Handle the response
-        if (res.data.res) {
-            router.push('/login');
-            toast.success("OTP verified successfully. Please login.");
-        } else {
-            toast.error(res.data.msg || "OTP verification failed.");
-        }
+      // Handle the response
+      if (res.data.res) {
+        router.push('/login');
+        toast.success("OTP verified successfully. Please login.");
+      } else {
+        toast.error(res.data.msg || "OTP verification failed.");
+      }
+      setLoading(false);
     } catch (err) {
-        toast.error(err.response?.data?.msg || "An error occurred during OTP verification.");
+      toast.error(err.response?.data?.msg || "An error occurred during OTP verification.");
     }
-};
+  };
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen pt-20 ">
-      {otpSent ? (
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-          <h4 className="text-2xl font-bold mb-4 text-center text-gray-800">Verify OTP</h4>
-          <form onSubmit={handleOtp}>
-            <input value={otp} onChange={(e)=>setOtp(e.target.value)} type="text" placeholder="Enter OTP" className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-4" />
-            <button className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-300">
-              Confirm
-            </button>
-          </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-12 pt-20">
+      <div className="w-full max-w-md">
+        {/* Logo/Brand */}
+        <div className="text-center mb-8">
+          <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-blue-700 
+            rounded-xl mx-auto mb-4 flex items-center justify-center shadow-xl shadow-blue-500/20">
+            <Code className="w-6 h-6 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {otpSent ? "Verify Your Email" : "Create an Account"}
+          </h2>
+          <p className="text-gray-500 mt-2">
+            {otpSent ? "Please enter the OTP sent to your email" : "Fill in your details to get started"}
+          </p>
         </div>
-      ) : (
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-          <h2 className="text-4xl font-extrabold text-center mb-6 text-gray-800">Register</h2>
-          <form onSubmit={handleRegister}>
-            <div className="mb-6">
-              <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">Name</label>
-              <div className="relative">
-                <AiOutlineUser className="absolute left-3 top-3 text-xl text-gray-400" />
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  placeholder="Enter your name"
-                  className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                />
+
+        {/* Main Content */}
+        <div className="bg-white p-8 rounded-2xl shadow-xl shadow-gray-200/50 relative"> {/* Added relative positioning */}
+          {loading && (
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center rounded-2xl z-50"> {/* Added z-50 */}
+              <div className="space-y-3">
+                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+                <p className="text-sm text-gray-500 animate-pulse text-center">
+                  {otpSent ? "Verifying OTP..." : "Creating your account..."}
+                </p>
               </div>
             </div>
+          )}
 
-            <div className="mb-6">
-              <label className="block text-gray-700 font-semibold mb-2" htmlFor="email">Email</label>
-              <div className="relative">
-                <AiOutlineMail className="absolute left-3 top-3 text-xl text-gray-400" />
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                />
+          {otpSent ? (
+            <form onSubmit={handleOtp} className="space-y-6">
+              <InputField
+                icon={AiOutlineMail}
+                label="OTP Code"
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter 6-digit OTP"
+              />
+              <button
+                type="submit"
+                className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 
+                text-white text-sm font-semibold rounded-xl hover:from-blue-700 
+                hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                focus:ring-offset-2 transition-all duration-200 shadow-lg shadow-blue-500/20"
+              >
+                Verify OTP
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister} className="space-y-6">
+              <InputField
+                icon={AiOutlineUser}
+                label="Full Name"
+                type="text"
+                name="name"
+                placeholder="Enter your full name"
+              />
+
+              <InputField
+                icon={AiOutlineMail}
+                label="Email Address"
+                type="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+              />
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    onChange={(e) => setImageFile(e.target.files[0])}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="image"
+                    className="flex items-center justify-center gap-3 px-4 py-3.5 bg-gray-50 
+                    border-2 border-dashed border-gray-200 rounded-xl cursor-pointer
+                    hover:bg-gray-100 transition-colors duration-200"
+                  >
+                    <Upload className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-500">
+                      {imageFile ? imageFile.name : "Upload profile picture"}
+                    </span>
+                  </label>
+                </div>
               </div>
-            </div>
 
-            <div className="mb-6">
-              <label className="block text-gray-700 font-semibold mb-2" htmlFor="image">Upload Profile Image</label>
-              <label className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-400 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition duration-300">
-                <AiOutlinePicture className="text-3xl mr-2" />
-                <span className="font-semibold">Choose an image or drag it here</span>
-                <input type="file" id="image" name="image" accept="image/*" onChange={handleImageChange} className="hidden" />
-              </label>
-              {imageFile && <p className="mt-2 text-center text-gray-500">Selected file: {imageFile.name}</p>}
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-gray-700 font-semibold mb-2" htmlFor="password">Password</label>
-              <div className="relative">
-                <AiOutlineLock className="absolute left-3 top-3 text-xl text-gray-400" />
-                <input
-                  type={passwordVisible ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  placeholder="Enter your password"
-                  className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <div className="relative">
+                  <AiOutlineLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type={passwordVisible ? "text" : "password"}
+                    name="password"
+                    placeholder="Create a password"
+                    className="w-full px-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl
+                    focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 
+                    focus:border-blue-500 transition-all duration-200 text-gray-600 
+                    text-sm placeholder:text-gray-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPasswordVisible(!passwordVisible)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 
+                    hover:text-gray-600"
+                  >
+                    {passwordVisible ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-center mb-6">
-              <input type="checkbox" className="form-checkbox h-5 w-5 text-indigo-600" onChange={() => setPasswordVisible(!passwordVisible)} />
-              <span className="ml-2 text-gray-700">Show Password</span>
-            </div>
+              <button
+                type="submit"
+                className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 
+                text-white text-sm font-semibold rounded-xl hover:from-blue-700 
+                hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                focus:ring-offset-2 transition-all duration-200 shadow-lg shadow-blue-500/20"
+              >
+                Create Account
+              </button>
+            </form>
+          )}
 
-            <button className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 mb-4">
-              Register
-            </button>
-
-            <div className="text-center mt-6">
-              <p className="text-gray-600">
-                Already have an account?{" "}
-                <Link href="/login" className="text-indigo-600 font-semibold hover:underline">
-                  Login
+          <p className="mt-8 text-center text-sm text-gray-500">
+            {otpSent ? (
+              "Didn't receive the code? Check your spam folder"
+            ) : (
+              <>
+                Already have an account?{' '}
+                <Link
+                  href="/login"
+                  className="font-semibold text-blue-600 hover:text-blue-700"
+                >
+                  Sign in
                 </Link>
-              </p>
-            </div>
-          </form>
+              </>
+            )}
+          </p>
         </div>
-      )}
+      </div>
     </div>
   );
 };

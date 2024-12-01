@@ -126,14 +126,12 @@ const HostHackathon = () => {
   };
 
   const handleAboutChange = (value) => {
-    console.log(value)
     setFields({
       ...fields, about: value
     })
   };
 
   const handleDescriptionChange = (value) => {
-    console.log(value)
     setFields({
       ...fields, description: value
     })
@@ -225,9 +223,19 @@ const HostHackathon = () => {
 
 
 
-
+  // If user is not logged in or not verified
   if (!user?.name || user?.request_status != "verified") {
-    return null
+    
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-semibold text-gray-900">Host a New Hackathon</h1>
+            <p className="mt-2 text-sm text-gray-600">You need to be logged in and verified to host a hackathon</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

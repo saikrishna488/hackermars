@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Code, Star, Plus, FolderKanban } from 'lucide-react'
+import { Search, Code, Star, Plus, FolderKanban,ArrowUpRight } from 'lucide-react'
 
 // Default languages for the dropdown
 const defaultLanguages = [
@@ -15,6 +15,88 @@ const defaultLanguages = [
   { label: 'Go', value: 'Go' },
   { label: 'PHP', value: 'PHP' },
 ]
+
+
+
+//project card
+const ProjectCard = ({ project, onClick }) => (
+  <div
+    onClick={onClick}
+    className="group flex flex-col bg-white rounded-xl border border-gray-100 hover:border-blue-100 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden"
+  >
+    {/* Project Header */}
+    <div className="p-6 flex-grow space-y-4">
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+            {project.title}
+          </h3>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-600">
+              {project.languages.slice(0,3).join(', ')}
+            </span>
+            {project.languages.length > 1 && (
+              <span className="text-xs text-gray-500">
+                +{project.languages.length - 1} more
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-200">
+          <ArrowUpRight className="h-5 w-5 text-blue-500" />
+        </div>
+      </div>
+
+      {/* Description */}
+      <div 
+        className="prose prose-sm max-w-none text-gray-600 line-clamp-2 overflow-hidden"
+        dangerouslySetInnerHTML={{ 
+          __html: project.description.replace(/<[^>]*>?/gm, ' ').substring(0, 150) + '...'
+        }} 
+      />
+
+      {/* Tags */}
+      <div className="flex flex-wrap gap-1.5 pt-2">
+        {project.tags.slice(0, 3).map((tag) => (
+          <span
+            key={tag}
+            className="px-2.5 py-1 text-xs font-medium bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            {tag}
+          </span>
+        ))}
+        {project.tags.length > 3 && (
+          <span className="px-2.5 py-1 text-xs font-medium text-gray-500">
+            +{project.tags.length - 3}
+          </span>
+        )}
+      </div>
+    </div>
+
+    {/* Card Footer */}
+    <div className="px-6 py-4 border-t border-gray-50 bg-gray-50/50 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" />
+        <span className="text-sm text-gray-600 font-medium">
+          {project.user.name.slice(0,20) + '...' || 'Anonymous'}
+        </span>
+      </div>
+      <div className="flex items-center gap-4 text-sm text-gray-500">
+        <time className="hidden sm:block">
+          {new Date(project.createdAt).toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })}
+        </time>
+        <div className="flex items-center gap-1.5">
+          <Star className="h-4 w-4 text-yellow-400" fill="currentColor" />
+          <span className="font-medium">{project.likes}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function Projects({ projs = [] }) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -34,33 +116,33 @@ export default function Projects({ projs = [] }) {
   )
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-20">
       {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
+        <div className="flex gap-3">
           <button
             onClick={() => router.push('/projects/dashboard')}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition duration-200 flex items-center shadow-lg"
+            className="inline-flex items-center px-4 py-2.5 bg-gray-50 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
           >
             <FolderKanban className="mr-2 h-4 w-4" />
             My Projects
           </button>
           <button
             onClick={() => router.push('/projects/addproject')}
-            className="px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-md hover:bg-green-700 transition duration-200 flex items-center shadow-lg"
+            className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Project
           </button>
         </div>
 
-        <div className="flex gap-2 sm:ml-auto">
-          <div className="relative w-64">
+        <div className="flex gap-3 sm:ml-auto">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
               placeholder="Search projects..."
-              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500"
+              className="w-72 pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -68,9 +150,8 @@ export default function Projects({ projs = [] }) {
 
           <select
             onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="w-48 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500 bg-white"
+            className="w-48 px-3 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
           >
-            <option value="">All Languages</option>
             {defaultLanguages.map((lang) => (
               <option key={lang.value} value={lang.value}>
                 {lang.label}
@@ -82,65 +163,19 @@ export default function Projects({ projs = [] }) {
 
       {/* Projects Grid */}
       {filteredProjects.length === 0 ? (
-        <div className="text-center text-gray-500 text-sm mt-8">
-          No projects found.
+        <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-100">
+          <Code className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500">No projects found matching your criteria.</p>
+          <p className="text-sm text-gray-400 mt-1">Try adjusting your search or filters</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-x-6 gap-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredProjects.map((project) => (
-            <div
-            key={project._id}
-            className="bg-white rounded-lg border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer transform w-full max-w-sm"
-            onClick={() => router.push(`/projects/${project._id}`)}
-          >
-            {/* Header */}
-            <div className="p-4 border-b border-gray-200">
-              <h3 className="text-base font-bold text-gray-900 truncate">
-                {project.title}
-              </h3>
-            </div>
-          
-            {/* Main Content */}
-            <div className="p-4 min-h-[120px]">
-              <p
-                className="text-xs text-gray-700 mb-3 line-clamp-2"
-                dangerouslySetInnerHTML={{ __html: project.description }}
-              />
-              <div className="flex items-center gap-x-2 mb-2 text-xs">
-                <Code className="h-4 w-4 text-blue-500" />
-                <span className="text-gray-600 truncate">
-                  {project.languages.slice(0, 2).join(", ")}
-                  {project.languages.length > 2 && ` +${project.languages.length - 2}`}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-x-1 gap-y-1">
-                {project.tags.slice(0, 2).map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[10px] bg-blue-gray-light text-gray-dark px-2 py-1 rounded-full border border-gray-light"
-                  >
-                    {tag}
-                  </span>
-                ))}
-                {project.tags.length > 2 && (
-                  <span className="text-[10px] bg-blue-gray-light text-gray-dark px-2 py-1 rounded-full border border-gray-light">
-                    +{project.tags.length - 2}
-                  </span>
-                )}
-              </div>
-            </div>
-          
-            {/* Footer */}
-            <div className="bg-gray-faint px-3 py-2 flex justify-between items-center text-[10px] text-gray-dark border-t border-gray-light">
-              <span>{new Date(project.createdAt).toLocaleDateString()}</span>
-              <div className="flex items-center">
-                <Star className="h-3 w-3 text-yellow mr-1" fill="currentColor" />
-                <span>{project.likes}</span>
-              </div>
-            </div>
-          </div>
-          
-          
+            <ProjectCard
+              key={project._id}
+              project={project}
+              onClick={() => router.push(`/projects/${project._id}`)}
+            />
           ))}
         </div>
       )}

@@ -1,123 +1,202 @@
 "use client";
-
-import { useState, useContext, useEffect } from 'react';
-import { User, Bell, LogOut, X, Home, Trophy, PlusCircle, ListCheck,Book } from 'lucide-react'; // Import Lucide Icons
+import { useState, useContext, useEffect, useRef } from 'react';
+import { 
+  User, Bell, LogOut, Home, Trophy, 
+  PlusCircle, ListCheck, Book, ChevronDown,
+  Settings, UserCircle
+} from 'lucide-react';
 import { globalContext } from '@/context_api/globalContext';
 import { useRouter } from 'next/navigation';
 
+const MenuItem = ({ icon: Icon, label, onClick, variant = 'default', badge }) => (
+  <button
+    onClick={onClick}
+    className={`
+      w-full flex items-center gap-3 px-4 py-2.5 text-sm
+      transition-all duration-200 hover:bg-gray-50/80
+      ${variant === 'danger' 
+        ? 'text-red-600 hover:text-red-700 hover:bg-red-50/80' 
+        : 'text-gray-600 hover:text-gray-900'
+      }
+    `}
+  >
+    <Icon className={`w-4 h-4 ${variant === 'danger' ? 'text-red-500' : 'text-gray-400'}`} />
+    <span className="font-medium">{label}</span>
+    {badge && (
+      <span className="ml-auto px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-600 rounded-full">
+        {badge}
+      </span>
+    )}
+  </button>
+);
+
+const UserAvatar = ({ user, size = 'md' }) => {
+  const sizeClasses = {
+    sm: 'w-8 h-8 text-sm',
+    md: 'w-10 h-10 text-base',
+    lg: 'w-12 h-12 text-lg'
+  };
+
+  if (user.profile_url) {
+    return (
+      <div className={`${sizeClasses[size]} relative rounded-full ring-2 ring-white ring-offset-2`}>
+        <img
+          src={user.login_type === 'google' 
+            ? user.profile_url 
+            : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.profile_url}`
+          }
+          className="w-full h-full rounded-full object-cover"
+          alt={user.name}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`
+      ${sizeClasses[size]} rounded-full 
+      bg-gradient-to-br from-blue-500 to-blue-600
+      text-white flex items-center justify-center font-medium
+      shadow-lg shadow-blue-500/20
+    `}>
+      {user.name.charAt(0).toUpperCase()}
+    </div>
+  );
+};
+
 const ProfileMenu = ({ user }) => {
-    const [isProfileVisible, setIsProfileVisible] = useState(false);
-    const [isUnread, setIsUnread] = useState(false);
-    const { setUser } = useContext(globalContext);
-    const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
+  const { setUser } = useContext(globalContext);
+  const router = useRouter();
+  const menuRef = useRef(null);
 
-    // Check for unread notifications
-    useEffect(() => {
-        if (user?.notifications?.length > 0) {
-            const unreadMessages = user.notifications.filter(n => n.isRead === false);
-            setIsUnread(unreadMessages.length > 0);
-        }
-    }, [user?.notifications]);
+  const menuItems = [
+    { label: 'Profile', icon: User, route: '/profile' },
+    { label: 'Dashboard', icon: Home, route: '/host' },
+    { label: 'My Projects', icon: Book, route: '/projects/dashboard', },
+    { label: 'My Events', icon: ListCheck, route: '/registeredevents' },
+  ];
 
-    // Logout function
-    const logout = () => {
-        setIsProfileVisible(false);
-        setUser({});
-        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        document.cookie = "google_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        router.replace('/login');
+
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
     };
 
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+
+
+  useEffect(() => {
+    if (user?.notifications?.length) {
+      setHasUnread(user.notifications.some(n => !n.isRead));
+    }
+  }, [user?.notifications]);
+
+  const handleLogout = () => {
+    setIsOpen(false);
+    setUser({});
+    ['token', 'google_token'].forEach(cookie => {
+      document.cookie = `${cookie}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    });
+    router.replace('/login');
+  };
+
+  if (!user?.name) {
     return (
-        <div className='flex flex-col items-center cursor-pointer'>
-            {user?.name ? (
-                <>
-                    {/* Bell Icon with Unread Dot */}
-                    <div className='flex flex-row flex-shrink-0 items-center gap-3 relative'>
-                        <div>
-                            {/* Bell Icon */}
-                            <span onClick={() => router.push('/notifications')} className="relative">
-                                <Bell size={20} />
-                                {/* Red dot when there are unread messages */}
-                                {isUnread && (
-                                    <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full" />
-                                )}
-                            </span>
-                        </div>
-                        
-                        {/* Profile Image or Initial */}
-                        {user.profile_url ? (
-                            <img
-                                onClick={() => setIsProfileVisible(!isProfileVisible)}
-                                src={user.login_type === 'google' ? user.profile_url : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.profile_url}`}
-                                className='rounded-full w-10 h-10 border-2 border-gray-300 hover:border-gray-400 transition duration-300 object-cover'
-                                alt="User profile"
-                            />
-                        ) : (
-                            <div onClick={() => setIsProfileVisible(!isProfileVisible)} className='flex items-center justify-center rounded-full w-11 h-11 bg-blue-200 border border-gray-300 hover:border-gray-400 transition duration-300'>
-                                {user.name.charAt(0).toUpperCase()}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Profile Menu Popup */}
-                    {isProfileVisible && (
-                        <div className="bg-white rounded-lg absolute top-0 w-[300px] right-0 max-w-[400px] flex flex-col text-sm shadow-xl z-50">
-                            <div className='flex justify-end p-2'>
-                                <button onClick={() => setIsProfileVisible(false)}>
-                                    <X className='text-gray-600 hover:text-gray-900' size={16} />
-                                </button>
-                            </div>
-
-                            {/* Profile Info */}
-                            <div className='p-4 flex flex-row items-center gap-2 border-b border-gray-200'>
-                                {user.profile_url ? (
-                                    <img
-                                        src={user.login_type === 'google' ? user.profile_url : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.profile_url}`}
-                                        className='rounded-full w-11 h-11 border-2 border-gray-300 hover:border-gray-400 transition duration-300 object-cover'
-                                        alt="User profile"
-                                    />
-                                ) : (
-                                    <div className='flex items-center justify-center rounded-full w-11 h-11 bg-blue-200 border border-gray-300 hover:border-gray-400 transition duration-300'>
-                                        {user.name.charAt(0).toUpperCase()}
-                                    </div>
-                                )}
-                                <div className='flex flex-col'>
-                                    <h4 className='font-semibold text-gray-800'>{user.name}</h4>
-                                    <span className='text-gray-500 text-sm break-words'>{user.email}</span>
-                                </div>
-                            </div>
-
-                            {/* Menu List */}
-                            <ul className="flex flex-col w-full m-0 p-4 space-y-2">
-                                {[
-                                    { label: 'Home', icon: <Home size={20} />, route: '/' },
-                                    { label: 'Projects', icon: <Book size={20} />, route: '/projects' },
-                                    { label: 'Hackathons', icon: <Trophy size={20} />, route: '/hackathons' },
-                                    { label: 'Host', icon: <PlusCircle size={20} />, route: '/host' },
-                                    { label: 'Profile', icon: <User size={20} />, route: '/profile' },
-                                    { label: 'Registered Events', icon: <ListCheck size={20} />, route: '/registered-events' },
-                                ].map(({ label, icon, route }) => (
-                                    <li onClick={() => router.push(route)} key={label} className="flex items-center cursor-pointer bg-gray-100 hover:bg-blue-200 rounded-lg p-3 transition duration-200 ease-in-out">
-                                        {icon}
-                                        <span className="ml-2 text-gray-700">{label}</span>
-                                    </li>
-                                ))}
-                                <li className="flex items-center cursor-pointer bg-red-100 hover:bg-red-200 rounded-lg p-3 transition duration-200 ease-in-out" onClick={logout}>
-                                    <LogOut size={20} className="mr-2 text-red-600" />
-                                    <span className="text-red-700">Logout</span>
-                                </li>
-                            </ul>
-                        </div>
-                    )}
-                </>
-            ) : (
-                <button onClick={() => router.push('/login')} className='px-3 py-1.5 border rounded-full bg-blue-600 text-white hover:bg-blue-700 transition duration-300 text-base'>
-                    Login
-                </button>
-            )}
-        </div>
+      <button onClick={()=>router.replace('/login')} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl
+        bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium
+        hover:from-blue-700 hover:to-blue-800 transition-all duration-200
+        shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30"
+      >
+        <UserCircle className="w-4 h-4" />
+        Login
+      </button>
     );
+  }
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => router.push('/notifications')}
+          className="relative p-2 rounded-lg hover:bg-gray-100 transition-all duration-200"
+        >
+          <Bell className="w-5 h-5 text-gray-600" />
+          {hasUnread && (
+            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full
+              ring-2 ring-white animate-pulse"
+            />
+          )}
+        </button>
+
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-3 p-1.5 rounded-lg hover:bg-gray-100 
+            transition-all duration-200 group"
+        >
+          <UserAvatar user={user} size="sm" />
+          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 
+            group-hover:text-gray-600 ${isOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
+      </div>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-3 w-72 bg-white rounded-2xl
+          shadow-xl border border-gray-100/50 py-3 z-50 backdrop-blur-sm
+          animate-in fade-in slide-in-from-top-2 duration-200"
+        >
+          <div className="px-4 py-3 flex items-center gap-4 border-b border-gray-100">
+            <UserAvatar user={user} size="md" />
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-gray-900 truncate">{user.name}</div>
+              <div className="text-sm text-gray-500 truncate">{user.email}</div>
+            </div>
+          </div>
+
+          <div className="py-2">
+            {menuItems.map((item) => (
+              <MenuItem
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                badge={item.badge}
+                onClick={() => {
+                  router.push(item.route);
+                  setIsOpen(false);
+                }}
+              />
+            ))}
+
+            <div className="my-2 border-t border-gray-100" />
+            
+            {/* <MenuItem
+              icon={Settings}
+              label="Settings"
+              onClick={() => {
+                router.push('/settings');
+                setIsOpen(false);
+              }}
+            /> */}
+            
+            <MenuItem
+              icon={LogOut}
+              label="Logout"
+              variant="danger"
+              onClick={handleLogout}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default ProfileMenu;

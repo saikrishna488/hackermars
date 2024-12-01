@@ -11,10 +11,10 @@ import axios from 'axios'
 const Host = () => {
 
     const [confirm, setConfirm] = useState(false)
-    const { user, setUser } = useContext(globalContext)
+    const { user, setUser } = useContext(globalContext);
+    const [isChecked, setIsChecked] = useState(false)
     const router = useRouter()
     const [obj, setObj] = useState({
-        aadhar: "",
         organization: "",
         organization_id: "",
         reason: "",
@@ -26,10 +26,12 @@ const Host = () => {
 
         e.preventDefault();
 
-
-        // const {aadhar , organization, organization_id ,reason ,phone} = obj
-        console.log(obj.aadhar.length)
         try {
+
+            if(!isChecked){
+                toast.error("Please agree to the terms and conditions")
+                return
+            }
 
             const res = await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL + '/user/appeal', obj, {
                 headers: {
@@ -60,10 +62,26 @@ const Host = () => {
         setConfirm(true)
     }
 
-
+    // check if user is logged in
     if (!user?.name) {
-        toast.error("Login to Host a Hackathon")
-        return redirect('/login')
+        
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+                <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div className="text-center">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-2">Please Login</h2>
+                        <p className="text-sm text-gray-600 mb-6">
+                            You need to login to continue with the verification process.
+                        </p>
+                        <Link href="/login">
+                            <button className="text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                Login
+                            </button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     if (user?.request_status === "pending") {
@@ -133,7 +151,7 @@ const Host = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-16 pb-12 px-4">
+        <div className="min-h-screen bg-gray-50 pt-20 pb-12 px-4 ">
             <div className="max-w-md mx-auto">
                 {!confirm ? (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -174,9 +192,8 @@ const Host = () => {
                         <h2 className="text-lg font-semibold text-gray-900 mb-6">Verification Details</h2>
                         <form onSubmit={handleRequest} className="space-y-4">
                             {[
-                                { icon: CheckSquare, placeholder: "Aadhar Number", value: "aadhar" },
                                 { icon: FileText, placeholder: "Organization Name", value: "organization" },
-                                { icon: Clipboard, placeholder: "Organization/Student ID", value: "organization_id" },
+                                { icon: Clipboard, placeholder: "Organization/Student ID (optional)", value: "organization_id" },
                                 { icon: Phone, placeholder: "Mobile Number", value: "phone", type: "tel" },
                             ].map((field) => (
                                 <div key={field.value} className="relative">
@@ -205,9 +222,9 @@ const Host = () => {
                             </div>
 
                             <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked={isChecked} onChange={(e)=> setIsChecked(e.target.checked)} />
                                 <span className="text-xs text-gray-600">
-                                    I agree to the <a href="#" className="text-blue-600 hover:underline">terms and conditions</a>
+                                    I agree to the <button  onClick={()=>router.push('/terms')} className="text-blue-600 hover:underline">terms and conditions</button>
                                 </span>
                             </label>
 

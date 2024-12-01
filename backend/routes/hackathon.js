@@ -521,7 +521,48 @@ router.post('/notify', async (req, res) => {
 });
 
 
+router.post('/getevents', async (req,res)=>{
+    try{
 
+        const {ids} = req.body;
+
+        console.log(req.body)
+
+        if(!ids || ids.length === 0){
+            return res.status(400).json({
+                msg : "IDs are required",
+                res : false
+            })
+        }
+
+        
+
+        const events = await hackathonModel.find({_id : {$in : ids}})
+
+        if(events.length > 0){
+            return res.json({
+                res : true,
+                msg : "Events found",
+                events 
+            })
+        }
+        else{
+            return res.json({
+                res : true,
+                msg : "No events found",
+                events : []
+            })
+        }
+
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).json({
+            msg : "An error occurred, please try again later",
+            res: false
+        })
+    }
+})
 
 
 

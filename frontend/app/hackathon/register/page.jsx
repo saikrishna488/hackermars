@@ -97,6 +97,28 @@ const RegisterPage = () => {
         }
     };
 
+
+    // if user is not logged in
+
+    if(!user?.name){
+        return (
+            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-16 px-4 sm:px-6">
+                <div className="max-w-3xl mx-auto">
+                    <div className="bg-white shadow-lg border border-gray-200 rounded-2xl p-8 text-center">
+                        <AlertCircle className="w-16 h-16 text-red-600 mx-auto" />
+                        <h2 className="text-2xl font-semibold text-gray-900 mb-4">You must be logged in to register</h2>
+                        <button
+                            onClick={() => router.push('/login')}
+                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                        >
+                            Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-16 px-4 sm:px-6">
             <div className="max-w-3xl mx-auto">

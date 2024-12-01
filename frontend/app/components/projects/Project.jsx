@@ -9,12 +9,12 @@ import { globalContext } from '@/context_api/globalContext'
 
 export default function ProjectPage({ project: initialProject }) {
   const [liked, setLiked] = useState(false)
-  const [project, setProject] = useState(initialProject || {})
+  const [project, setProject] = useState({})
   const { user } = useContext(globalContext)
   const router = useRouter()
 
   useEffect(() => {
-    setProject(initialProject || {})
+    setProject(initialProject)
   }, [initialProject])
 
   useEffect(() => {
@@ -73,99 +73,113 @@ export default function ProjectPage({ project: initialProject }) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto pt-16 px-4 sm:px-6 lg:px-8 mb-24">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
-        <div className="p-6 sm:p-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 leading-tight">{project.title}</h1>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => openLink(project.codeLink)}
-                className="flex items-center gap-1 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 transition duration-150"
-              >
-                <FaCode className="text-gray-600 h-4 w-4" />
-                <span className="hidden sm:inline text-sm">Source Code</span>
-              </button>
-              <button
-                onClick={() => openLink(project.demoLink)}
-                className="flex items-center gap-1 px-3 py-1 rounded-md bg-blue-100 hover:bg-blue-200 text-blue-700 transition duration-150"
-              >
-                <FaExternalLinkAlt className="text-blue-600 h-4 w-4" />
-                <span className="hidden sm:inline text-sm">Live Demo</span>
-              </button>
-              <button
-                onClick={handleLike}
-                className="flex items-center gap-1 px-3 py-1 rounded-md bg-yellow-100 hover:bg-yellow-200 text-yellow-700 transition duration-150"
-              >
-                {liked ? <FaStar className="text-yellow-500 h-4 w-4" /> : <FaRegStar className="h-4 w-4" />}
-                <span className="text-sm">{project.likes}</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="prose prose-sm max-w-none mb-8 text-gray-600 leading-relaxed">
-            <p dangerouslySetInnerHTML={{ __html: project.description }} />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[20px] gap-y-[10px] mb-8">
-            {/* Tags Section */}
-            <div className="bg-gray-faint rounded-lg p-[15px] shadow-sm transition-shadow duration-150 hover:shadow-md">
-              <h2 className="text-lg font-semibold text-gray-900 mb-[10px] flex items-center">
-                <FaTag className="mr-[5px] text-blue-500 h-[20px] w-[20px]" />
-                Tags
-              </h2>
-              <div className="flex flex-wrap gap-[5px]">
-                {project.tags?.map((tag, index) => (
-                  <span key={index} className="px-[8px] py-[3px] bg-white border border-gray-light text-gray-dark rounded-md text-xs font-medium hover:border-blue transition-colors duration-150">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Languages Section */}
-            <div className="bg-gray-faint rounded-lg p-[15px] shadow-sm transition-shadow duration-150 hover:shadow-md">
-              <h2 className="text-lg font-semibold text-gray-900 mb-[10px] flex items-center">
-                <FaLanguage className="mr-[5px] text-green-500 h-[20px] w-[20px]" />
-                Languages
-              </h2>
-              <div className="flex flex-wrap gap-[5px]">
-                {project.languages?.map((lang, index) => (
-                  <span key={index} className="px-[8px] py-[3px] bg-white border border-gray-light text-gray-dark rounded-md text-xs font-medium hover:border-green transition-colors duration=150">
-                    {lang}
-                  </span>
-                ))}
+      <div className="max-w-5xl mx-auto pt-20 px-4 sm:px-6 lg:px-8 mb-16">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Header Section */}
+          <div className="p-8 border-b border-gray-100">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h1 className="text-2xl font-semibold text-gray-800">{project.title}</h1>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => openLink(project.codeLink)}
+                  className="inline-flex items-center px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                  <FaCode className="h-4 w-4 text-gray-600" />
+                  <span className="ml-2 text-sm font-medium text-gray-700">Source</span>
+                </button>
+                <button
+                  onClick={() => openLink(project.demoLink)}
+                  className="inline-flex items-center px-4 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                >
+                  <FaExternalLinkAlt className="h-4 w-4" />
+                  <span className="ml-2 text-sm font-medium">Demo</span>
+                </button>
+                <button
+                  onClick={handleLike}
+                  className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                >
+                  {liked ? 
+                    <FaStar className="h-4 w-4 text-yellow-400" /> : 
+                    <FaRegStar className="h-4 w-4 text-gray-400" />
+                  }
+                  <span className="ml-2 text-sm font-medium text-gray-700">{project.likes}</span>
+                </button>
               </div>
             </div>
           </div>
-
-          {/* Contributors Section */}
-          <div className="bg-gray-faint rounded-lg p-[15px] mb-[20px] shadow-sm transition-shadow duration=150 hover:shadow-md">
-            <h2 className="text-lg font-semibold text-gray-900 mb-[10px] flex items-center">
-              <FaUserAlt className="mr-[5px] text-purple-500 h-[20px] w-[20px]" />
-              Contributors
-            </h2>
-            <div className="flex flex-wrap gap-[5px]">
-              {project.contributors?.map((contributor, index) => (
-                <span key={index} className="px-[8px] py-[3px] bg-white border border-gray-light text-gray-dark rounded-md text-xs font-medium hover:border-purple transition-colors duration=150">
-                  {contributor}
-                </span>
-              ))}
+  
+          {/* Main Content */}
+          <div className="p-8">
+            {/* Description */}
+            <div className="prose prose-gray max-w-none mb-8">
+              <p className="text-gray-600 leading-relaxed" 
+                 dangerouslySetInnerHTML={{ __html: project.description }} 
+              />
             </div>
-          </div>
-
-          {/* Footer Section */}
-          <div className="mt-[10px] pt-[10px] border-t border-gray-light text-xs text-gray-dark flex items-center justify-between">
-            <div className="flex items-center gap-x-[5px]">
-              <FaUserAlt className="text-gray-light" />
-              <span>Posted by 
-                <span className="font-medium text-gray-dark"> {project.user?.name || "user488"}</span>
-              </span>
+  
+            {/* Info Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Tags Section */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h2 className="text-base font-medium text-gray-800 mb-4 flex items-center">
+                  <FaTag className="mr-2 text-blue-500" />
+                  Tags
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {project.tags?.map((tag, index) => (
+                    <span key={index} 
+                          className="px-3 py-1 bg-white rounded-full text-sm text-gray-600 border border-gray-200">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+  
+              {/* Languages Section */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h2 className="text-base font-medium text-gray-800 mb-4 flex items-center">
+                  <FaLanguage className="mr-2 text-green-500" />
+                  Languages
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {project.languages?.map((lang, index) => (
+                    <span key={index} 
+                          className="px-3 py-1 bg-white rounded-full text-sm text-gray-600 border border-gray-200">
+                      {lang}
+                    </span>
+                  ))}
+                </div>
+              </div>
+  
+              {/* Contributors Section */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h2 className="text-base font-medium text-gray-800 mb-4 flex items-center">
+                  <FaUserAlt className="mr-2 text-purple-500" />
+                  Contributors
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {project.contributors?.map((contributor, index) => (
+                    <span key={index} 
+                          className="px-3 py-1 bg-white rounded-full text-sm text-gray-600 border border-gray-200">
+                      {contributor}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
-            <time className="text-gray-light">{new Date(project.createdAt).toLocaleDateString()}</time>
+  
+            {/* Footer */}
+            <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <FaUserAlt className="h-4 w-4" />
+                <span>Posted by <span className="font-medium">{project.user?.name || "user488"}</span></span>
+              </div>
+              <time className="text-sm text-gray-500">
+                {new Date(project.createdAt).toLocaleDateString()}
+              </time>
+            </div>
           </div>
         </div>
       </div>
-    </div>
   )
 }

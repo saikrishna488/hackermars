@@ -53,15 +53,15 @@ const AddProject = () => {
     }, [contributors, tags]);
 
     // edit proj
-    useEffect(()=>{
+    useEffect(() => {
 
-        if(project?._id){
+        if (project?._id) {
             setContributors(project?.contributors?.join(', '));
-        setTags(project?.tags?.join(', '));
+            setTags(project?.tags?.join(', '));
         }
 
 
-    },[])
+    }, [])
 
     const router = useRouter();
 
@@ -99,122 +99,160 @@ const AddProject = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto pt-24 pb-20 p-6 bg-white rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Add New Project</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Title */}
-                <div className="flex flex-col">
-                    <label className="text-gray-700 flex items-center mb-1">
-                        <Type className="mr-2 text-gray-500" /> Title
-                    </label>
-                    <input
-                        type="text"
-                        value={fields.title}
-                        onChange={(e) => setFields({ ...fields, title: e.target.value })}
-                        placeholder="Enter project title"
-                        className="p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500 transition duration-200"
-                    />
-                    <small className="text-gray-500">Enter a descriptive title for your project.</small>
+
+        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 pt-20">
+            <div className="max-w-3xl mx-auto">
+                {/* Header */}
+                <div className="mb-8 text-center">
+                    <h2 className="text-2xl font-semibold text-gray-900">
+                        {project?._id ? 'Edit Project' : 'Add New Project'}
+                    </h2>
+                    <p className="mt-2 text-sm text-gray-600">
+                        Share your project with the community
+                    </p>
                 </div>
 
-                {/* Description */}
-                <div className="flex flex-col">
-                    <label className="text-gray-700 flex items-center mb-1">
-                        <FileText className="mr-2 text-gray-500" /> Description
-                    </label>
-                    <ReactQuill
-                        theme="snow"
-                        value={fields.description}
-                        onChange={(value) => setFields({ ...fields, description: value })}
-                        placeholder="Enter project description..."
-                        className="border border-gray-300 rounded"
-                    />
-                    <small className="text-gray-500">Provide a detailed description of your project.</small>
-                </div>
+                {/* Main Form */}
+                <div className="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
+                    <form onSubmit={handleSubmit} className="divide-y divide-gray-200">
+                        {/* Title Section */}
+                        <div className="p-6 space-y-4">
+                            <div className="flex flex-col space-y-2">
+                                <label className="flex items-center text-sm font-medium text-gray-700">
+                                    <Type className="w-4 h-4 mr-2 text-gray-400" />
+                                    Project Title
+                                </label>
+                                <input
+                                    type="text"
+                                    value={fields.title}
+                                    onChange={(e) => setFields({ ...fields, title: e.target.value })}
+                                    placeholder="Enter a descriptive title"
+                                    className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                />
+                            </div>
 
-                {/* Contributors */}
-                <div className="flex flex-col">
-                    <label className="text-gray-700 flex items-center mb-1">
-                        <Users className="mr-2 text-gray-500" /> Contributors
-                    </label>
-                    <input
-                        type="text"
-                        value={contributors}
-                        onChange={(e) => setContributors(e.target.value)}
-                        placeholder="Enter contributor names (comma separated)"
-                        className="p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500 transition duration-200"
-                    />
-                    <small className="text-gray-500">List contributors separated by commas.</small>
-                </div>
+                            {/* Description */}
+                            <div className="flex flex-col space-y-2">
+                                <label className="flex items-center text-sm font-medium text-gray-700">
+                                    <FileText className="w-4 h-4 mr-2 text-gray-400" />
+                                    Description
+                                </label>
+                                <div className="prose-editor">
+                                    <ReactQuill
+                                        theme="snow"
+                                        value={fields.description}
+                                        onChange={(value) => setFields({ ...fields, description: value })}
+                                        className="bg-gray-50 rounded-lg"
+                                    />
+                                </div>
+                            </div>
+                        </div>
 
-                {/* Languages */}
-                <div className="flex flex-col">
-                    <label className="text-gray-700 flex items-center mb-1">
-                        <Code className="mr-2 text-gray-500" /> Languages
-                    </label>
-                    <Select
-                        options={defaultLanguages}
-                        isMulti
-                        onChange={(selected) => setFields({ ...fields, languages: selected.map(option => option.value) })}
-                        placeholder="Select languages used in the project"
-                        classNamePrefix="select"
-                        value={fields?.languages ? fields.languages.map(lang => ({ label: lang, value: lang })) : []}
-                    />
-                    <small className="text-gray-500">Select the programming languages used.</small>
-                </div>
+                        {/* Contributors & Languages Section */}
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex flex-col space-y-2">
+                                    <label className="flex items-center text-sm font-medium text-gray-700">
+                                        <Users className="w-4 h-4 mr-2 text-gray-400" />
+                                        Contributors
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={contributors}
+                                        onChange={(e) => setContributors(e.target.value)}
+                                        placeholder="e.g., John Doe, Jane Smith"
+                                        className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                    />
+                                </div>
 
-                {/* Tags */}
-                <div className="flex flex-col">
-                    <label className="text-gray-700 flex items-center mb-1">
-                        <Tag className="mr-2 text-gray-500" /> Tags
-                    </label>
-                    <input
-                        type="text"
-                        value={tags}
-                        onChange={(e) => setTags(e.target.value)}
-                        placeholder="Enter tags (comma separated)"
-                        className="p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500 transition duration-200"
-                    />
-                    <small className="text-gray-500">Add relevant tags separated by commas.</small>
-                </div>
+                                <div className="flex flex-col space-y-2">
+                                    <label className="flex items-center text-sm font-medium text-gray-700">
+                                        <Code className="w-4 h-4 mr-2 text-gray-400" />
+                                        Languages
+                                    </label>
+                                    <Select
+                                        options={defaultLanguages}
+                                        isMulti
+                                        onChange={(selected) => setFields({ ...fields, languages: selected.map(option => option.value) })}
+                                        placeholder="Select languages"
+                                        classNamePrefix="select"
+                                        value={fields?.languages?.map(lang => ({ label: lang, value: lang }))}
+                                        className="react-select-container"
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                backgroundColor: '#F9FAFB',
+                                                borderColor: '#E5E7EB',
+                                                '&:hover': {
+                                                    borderColor: '#E5E7EB'
+                                                }
+                                            })
+                                        }}
+                                    />
+                                </div>
+                            </div>
 
-                {/* Code Link */}
-                <div className="flex flex-col">
-                    <label className="text-gray-700 flex items-center mb-1">
-                        <Link className="mr-2 text-gray-500" /> Code Link
-                    </label>
-                    <input
-                        type="url"
-                        value={fields.codeLink}
-                        onChange={(e) => setFields({ ...fields, codeLink: e.target.value })}
-                        placeholder="Enter GitHub link for code or other files"
-                        className="p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500 transition duration-200"
-                    />
-                    <small className="text-gray-500">Enter a GitHub link for code or file links (mp4, pptx, etc.).</small>
-                </div>
+                            {/* Tags */}
+                            <div className="flex flex-col space-y-2">
+                                <label className="flex items-center text-sm font-medium text-gray-700">
+                                    <Tag className="w-4 h-4 mr-2 text-gray-400" />
+                                    Tags
+                                </label>
+                                <input
+                                    type="text"
+                                    value={tags}
+                                    onChange={(e) => setTags(e.target.value)}
+                                    placeholder="e.g., web-development, machine-learning, api"
+                                    className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                />
+                            </div>
+                        </div>
 
-                {/* Demo Link */}
-                <div className="flex flex-col">
-                    <label className="text-gray-700 flex items-center mb-1">
-                        <Eye className="mr-2 text-gray-500" /> Demo Link
-                    </label>
-                    <input
-                        type="url"
-                        value={fields.demoLink}
-                        onChange={(e) => setFields({ ...fields, demoLink: e.target.value })}
-                        placeholder="Enter deployed URL or prototype link"
-                        className="p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500 transition duration-200"
-                    />
-                    <small className="text-gray-500">Enter a deployed URL or prototype link.</small>
-                </div>
+                        {/* Links Section */}
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex flex-col space-y-2">
+                                    <label className="flex items-center text-sm font-medium text-gray-700">
+                                        <Link className="w-4 h-4 mr-2 text-gray-400" />
+                                        Code Repository
+                                    </label>
+                                    <input
+                                        type="url"
+                                        value={fields.codeLink}
+                                        onChange={(e) => setFields({ ...fields, codeLink: e.target.value })}
+                                        placeholder="https://github.com/username/repo"
+                                        className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                    />
+                                </div>
 
-                {/* Submit Button */}
-                <div className="text-center">
-                    <button type="submit" className="px-6 py-[10px] bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200 shadow-md">
-                        Add Project
-                    </button>
+                                <div className="flex flex-col space-y-2">
+                                    <label className="flex items-center text-sm font-medium text-gray-700">
+                                        <Eye className="w-4 h-4 mr-2 text-gray-400" />
+                                        Live Demo
+                                    </label>
+                                    <input
+                                        type="url"
+                                        value={fields.demoLink}
+                                        onChange={(e) => setFields({ ...fields, demoLink: e.target.value })}
+                                        placeholder="https://your-demo-link.com"
+                                        className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Submit Section */}
+                        <div className="px-6 py-4 bg-gray-50 flex items-center justify-end">
+                            <button
+                                type="submit"
+                                className="px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-500/20 transition-colors"
+                            >
+                                {project?._id ? 'Update Project' : 'Add Project'}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     );
 };
