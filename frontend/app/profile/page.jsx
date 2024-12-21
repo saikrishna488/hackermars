@@ -1,6 +1,6 @@
 "use client";
 import React, { useContext, useState, useRef, useEffect } from 'react';
-import { User, Mail, Lock, Bell, Calendar, Layout, Camera, Edit2 } from 'lucide-react';
+import { User, Mail, Lock, Bell, Calendar, Layout, Camera, Edit2,ArrowLeft } from 'lucide-react';
 import { globalContext } from '@/context_api/globalContext';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -127,8 +127,16 @@ const Profile = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-16 pb-12">
+        <div className="min-h-screen bg-gray-50 pb-12 pt-20">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <button
+                    onClick={() => router.back()}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors mb-4"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back
+                </button>
+    
                 {/* Profile Header */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div className="relative h-32 bg-gradient-to-r from-blue-500 to-indigo-600">
@@ -155,7 +163,7 @@ const Profile = () => {
                             </div>
                         </div>
                     </div>
-
+    
                     <div className="pt-16 pb-6 px-8">
                         <div className="flex justify-between items-center">
                             <h1 className="text-2xl font-semibold text-gray-900">{user?.name}</h1>
@@ -170,7 +178,7 @@ const Profile = () => {
                         <p className="mt-1 text-sm text-gray-500">{user?.email}</p>
                     </div>
                 </div>
-
+    
                 {/* Profile Form */}
                 <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -190,7 +198,7 @@ const Profile = () => {
                                 />
                             </div>
                         </div>
-
+    
                         {/* Email Field */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -206,7 +214,7 @@ const Profile = () => {
                                 />
                             </div>
                         </div>
-
+    
                         {/* Password Fields - Only shown when editing */}
                         {isEditing && (
                             <>
@@ -224,7 +232,7 @@ const Profile = () => {
                                         />
                                     </div>
                                 </div>
-
+    
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">New Password</label>
                                     <div className="mt-1 relative rounded-md shadow-sm">
@@ -241,7 +249,7 @@ const Profile = () => {
                                 </div>
                             </>
                         )}
-
+    
                         {/* Action Buttons */}
                         {isEditing && (
                             <div className="flex justify-end">
@@ -255,7 +263,7 @@ const Profile = () => {
                         )}
                     </form>
                 </div>
-
+    
                 {/* Quick Actions */}
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button
@@ -265,7 +273,7 @@ const Profile = () => {
                         <Bell className="w-5 h-5 text-blue-500" />
                         <span className="text-sm font-medium text-gray-700">Notifications</span>
                     </button>
-
+    
                     <button
                         onClick={() => router.push('/registered-events')}
                         className="flex items-center justify-center gap-2 p-4 bg-white rounded-xl shadow-sm border border-gray-200 hover:border-gray-300 transition-colors"
@@ -273,7 +281,7 @@ const Profile = () => {
                         <Calendar className="w-5 h-5 text-blue-500" />
                         <span className="text-sm font-medium text-gray-700">Registered Events</span>
                     </button>
-
+    
                     <button
                         onClick={() => router.push('/dashboard')}
                         className="flex items-center justify-center gap-2 p-4 bg-white rounded-xl shadow-sm border border-gray-200 hover:border-gray-300 transition-colors"
@@ -285,6 +293,7 @@ const Profile = () => {
             </div>
         </div>
     );
+    
 };
 
 export default Profile;

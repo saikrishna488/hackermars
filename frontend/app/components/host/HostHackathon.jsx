@@ -85,22 +85,20 @@ const HostHackathon = () => {
     location: hackathon?.location || '',
     conducted_by: user?.organization || "Google",
     isPrivate: hackathon?.isPrivate || false,
-    client_id: user?._id
+    client_id: user?._id,
+    _id : hackathon?._id || ""
   });
 
 
   useEffect(() => {
 
     const fetchImage = async () => {
-      if (hackathon?._id) {
-        console.log("1")
+      if (fields._id) {
 
         try {
           const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + '/' + fields.image);
           const blob = await response.blob(); // Step 1: Convert to Blob
           const file = new File([blob], 'previous_image.jpg', { type: blob.type }); // Step 2: Create File
-
-          console.log("2")
 
           setFields({ ...fields, image: file })
 
