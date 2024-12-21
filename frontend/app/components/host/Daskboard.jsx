@@ -164,6 +164,11 @@ const Dashboard = () => {
     router.push(`/host/dashboard/hackathon`);
   }
 
+  const handleHostHackathon = ()=>{
+    setHackathon(null)
+    router.push("/host/hosthackathon");
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/10 py-4 pt-20">
       <div className="max-w-6xl mx-auto px-4">
@@ -174,7 +179,7 @@ const Dashboard = () => {
             <p className="text-sm text-gray-500 mt-1">Manage your hackathon events</p>
           </div>
           <button
-            onClick={() => router.push("/host/hosthackathon")}
+            onClick={() => handleHostHackathon()}
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm
                      font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >

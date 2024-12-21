@@ -87,7 +87,7 @@ const Hackathon = ({ hackathonn }) => {
   const { hackathon, setHackathon, user } = useContext(globalContext);
   const [selectedTab, setSelectedTab] = useState("description");
   const [registered, setRegistered] = useState(false);
-  const hasStarted = isHackathonStarted(hackathon.start_date);
+  const hasStarted = isHackathonStarted(hackathon?.start_date);
   const router = useRouter();
 
   useEffect(() => {

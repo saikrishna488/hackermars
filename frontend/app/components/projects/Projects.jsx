@@ -22,7 +22,7 @@ const defaultLanguages = [
 const ProjectCard = ({ project, onClick }) => (
   <div
     onClick={onClick}
-    className="group flex flex-col bg-white rounded-xl border border-gray-100 hover:border-blue-100 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden"
+    className="group flex flex-col bg-white rounded-xl border border-gray-200 hover:border-blue-100 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden"
   >
     {/* Project Header */}
     <div className="p-6 flex-grow space-y-4">
