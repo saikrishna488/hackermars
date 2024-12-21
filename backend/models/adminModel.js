@@ -19,7 +19,7 @@ const adminSchema = mongoose.Schema({
     hasHackathonsAccess : {
         type : Boolean
     },
-    canWrite : {
+    hasProjectsAccess : {
         type : Boolean
     }
 })

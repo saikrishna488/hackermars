@@ -71,6 +71,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
         }
 
         if (_id) {
+            console.log("hi")
 
             const hackathon = await hackathonModel.findOne({ _id })
 

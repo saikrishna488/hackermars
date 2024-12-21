@@ -46,7 +46,7 @@ const UserAvatar = ({ user, size = 'md' }) => {
             : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.profile_url}`
           }
           className="w-full h-full rounded-full object-cover"
-          alt={user.name}
+          // alt={user.name}
         />
       </div>
     );
@@ -76,6 +76,8 @@ const ProfileMenu = ({ user }) => {
     { label: 'Dashboard', icon: Home, route: '/host' },
     { label: 'My Projects', icon: Book, route: '/projects/dashboard', },
     { label: 'My Events', icon: ListCheck, route: '/registeredevents' },
+    { label: 'Discover Hackathons', icon: Trophy, route: '/hackathons' },
+    { label: 'Discover Projects', icon: PlusCircle, route: '/projects' },
   ];
 
 

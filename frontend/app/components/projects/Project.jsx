@@ -4,7 +4,7 @@ import React, { useContext, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { FaStar, FaRegStar, FaCode, FaExternalLinkAlt, FaTag, FaLanguage, FaUserAlt } from 'react-icons/fa'
+import { FaStar, FaRegStar, FaCode, FaExternalLinkAlt, FaTag, FaLanguage, FaUserAlt, FaArrowLeft } from 'react-icons/fa'
 import { globalContext } from '@/context_api/globalContext'
 
 export default function ProjectPage({ project: initialProject }) {
@@ -73,8 +73,21 @@ export default function ProjectPage({ project: initialProject }) {
   }
 
   return (
-      <div className="max-w-5xl mx-auto pt-20 px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/10 py-4 pt-20">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="group mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 
+                    bg-white/80 rounded-lg border border-gray-200 hover:bg-gray-50
+                    transition-all duration-200"
+        >
+          <FaArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
+          Back
+        </button>
+
+        {/* Project Content */}
+        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
           {/* Header Section */}
           <div className="p-8 border-b border-gray-100">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -181,5 +194,6 @@ export default function ProjectPage({ project: initialProject }) {
           </div>
         </div>
       </div>
+    </div>
   )
 }

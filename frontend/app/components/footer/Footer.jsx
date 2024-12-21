@@ -1,9 +1,17 @@
 "use client";
 import React from 'react';
 import { Mail, MessageCircle, Twitter, Github, Linkedin, ExternalLink } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+
+  const path = usePathname();
+
+  if(path.includes("/admin")) {
+    return null;
+  }
+
 
   const footerLinks = [
     {
@@ -33,19 +41,21 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-white border-t border-gray-100">
+    <footer className="bg-gray-50 border-t border-gray-100">
       {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-12">
           {/* Brand Section */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">H</span>
+          <div className="col-span-2 sm:col-span-2 lg:col-span-4 space-y-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+                <span className="text-white font-bold text-xl">H</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">HackerMars</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                HackerMars
+              </span>
             </div>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-600 text-sm leading-relaxed max-w-xs">
               Empowering innovators to build the future through hackathons and collaborative tech events.
             </p>
             
@@ -55,10 +65,10 @@ const Footer = () => {
                 <a
                   key={index}
                   href={social.href}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
                   aria-label={social.label}
                 >
-                  <social.icon className="w-4 h-4 text-gray-600" />
+                  <social.icon className="w-5 h-5 text-gray-700" />
                 </a>
               ))}
             </div>
@@ -66,8 +76,8 @@ const Footer = () => {
 
           {/* Quick Links */}
           {footerLinks.map((section, index) => (
-            <div key={index} className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+            <div key={index} className="col-span-1 sm:col-span-1 lg:col-span-2 space-y-5">
+              <h3 className="text-sm font-semibold text-gray-900 tracking-wide">
                 {section.title}
               </h3>
               <ul className="space-y-3">
@@ -75,10 +85,10 @@ const Footer = () => {
                   <li key={linkIndex}>
                     <a
                       href={link.href}
-                      className="text-gray-500 hover:text-gray-900 text-sm flex items-center group"
+                      className="text-gray-600 hover:text-gray-900 text-sm flex items-center group transition-all duration-200 hover:translate-x-0.5"
                     >
                       {link.label}
-                      <ExternalLink className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ExternalLink className="w-3 h-3 ml-1.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                     </a>
                   </li>
                 ))}
@@ -87,51 +97,49 @@ const Footer = () => {
           ))}
 
           {/* Newsletter Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+          <div className="col-span-2 sm:col-span-2 lg:col-span-4 space-y-5">
+            <h3 className="text-sm font-semibold text-gray-900 tracking-wide">
               Stay Updated
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-600 leading-relaxed">
               Subscribe to our newsletter for the latest updates and opportunities.
             </p>
-            <form className="space-y-2">
-              <div className="flex">
+            <form className="space-y-3">
+              <div className="relative flex flex-col sm:flex-row max-w-md">
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="flex-grow px-4 py-2 text-sm border border-gray-200 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl sm:rounded-r-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm placeholder:text-gray-400 text-gray-900"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition-colors duration-200"
+                  className="w-full sm:w-auto mt-2 sm:mt-0 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl sm:rounded-l-none hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30 font-medium"
                 >
                   Subscribe
                 </button>
               </div>
-              <p className="text-xs text-gray-400">
-                By subscribing, you agree to our Privacy Policy.
+              <p className="text-xs text-gray-500">
+                We respect your privacy. Unsubscribe at any time.
               </p>
             </form>
           </div>
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-gray-100 bg-gray-50">
+      {/* Bottom Footer */}
+      <div className="border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             <div className="text-sm text-gray-500">
-              © {currentYear} HackerMars. All rights reserved.
+              {currentYear} HackerMars. All rights reserved.
             </div>
             
-            <div className="flex space-x-6">
-              <a href="/support" className="text-sm text-gray-500 hover:text-gray-900 flex items-center">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Support
+            <div className="flex items-center space-x-6">
+              <a href="/privacy" className="text-sm text-gray-500 hover:text-gray-900 transition-colors duration-200">
+                Privacy Policy
               </a>
-              <a href="mailto:support@hackermars.com" className="text-sm text-gray-500 hover:text-gray-900 flex items-center">
-                <Mail className="w-4 h-4 mr-2" />
-                Contact
+              <a href="/terms" className="text-sm text-gray-500 hover:text-gray-900 transition-colors duration-200">
+                Terms of Service
               </a>
             </div>
           </div>

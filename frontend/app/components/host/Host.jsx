@@ -22,6 +22,14 @@ const Host = () => {
         email: user.email || ""
     })
 
+
+    //redirect verified user
+    useEffect(()=>{
+        if (user?.request_status == "verified") {
+            router.replace('/host/dashboard');
+        }
+    },[])
+
     const handleRequest = async (e) => {
 
         e.preventDefault();
@@ -143,7 +151,7 @@ const Host = () => {
     }
 
     if (user?.request_status == "verified") {
-        router.push('/host/dashboard')
+        return null
     }
 
     if (user?.request_status == "verified" || user?.request_status == "pending") {
@@ -224,7 +232,7 @@ const Host = () => {
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked={isChecked} onChange={(e)=> setIsChecked(e.target.checked)} />
                                 <span className="text-xs text-gray-600">
-                                    I agree to the <button  onClick={()=>router.push('/terms')} className="text-blue-600 hover:underline">terms and conditions</button>
+                                    I agree to the <span  onClick={()=>router.push('/terms')} className="text-blue-600 hover:underline">terms and conditions</span>
                                 </span>
                             </label>
 

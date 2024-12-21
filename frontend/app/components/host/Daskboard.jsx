@@ -10,14 +10,14 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 const StatCard = ({ icon: Icon, label, value }) => (
-  <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100">
-    <div className="flex items-center gap-4 sm:flex-col sm:items-start">
-      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+  <div className="bg-white p-3 rounded-lg border border-gray-100 hover:border-blue-100 transition-all duration-200">
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+        <Icon className="w-4 h-4 text-blue-600" />
       </div>
       <div>
-        <p className="text-sm text-gray-500">{label}</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{value}</h4>
+        <p className="text-xs text-gray-500">{label}</p>
+        <h4 className="text-sm font-semibold text-gray-900 mt-0.5">{value}</h4>
       </div>
     </div>
   </div>
@@ -30,24 +30,25 @@ const EventCard = ({ event, onClick }) => {
   return (
     <div
       onClick={onClick}
-      className="group bg-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer"
+      className="group bg-white rounded-lg border border-gray-100  hover:border-blue-100 
+                transition-all duration-200 overflow-hidden cursor-pointer"
     >
-      <div className="aspect-[16/9] relative">
+      <div className="aspect-[21/9] relative">
         <img
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${event.image}`}
           alt={event.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
         
-        <div className="absolute inset-x-4 bottom-4">
-          <div className="flex items-start justify-between gap-3">
-            <h3 className="text-white font-semibold text-lg leading-tight line-clamp-2 [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.5)]">
+        <div className="absolute inset-x-3 bottom-3">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-white font-medium text-sm leading-tight line-clamp-2">
               {event.title}
             </h3>
-            <span className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium ${
+            <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium ${
               isActive 
-                ? 'bg-green-500 text-white' 
+                ? 'bg-green-500/90 text-white' 
                 : 'bg-white/90 text-gray-700'
             }`}>
               {isActive ? 'Active' : 'Completed'}
@@ -56,20 +57,20 @@ const EventCard = ({ event, onClick }) => {
         </div>
       </div>
 
-      <div className="p-4">
-        <div className="space-y-4">
+      <div className="p-3">
+        <div className="space-y-3">
           {/* Progress Section */}
           <div>
-            <div className="flex justify-between text-sm mb-2">
+            <div className="flex justify-between text-xs mb-1.5">
               <span className="text-gray-500">Registration Progress</span>
               <span className="font-medium text-gray-900">
                 {event.registered_users.length}/{event.max_users}
               </span>
             </div>
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
               <div 
                 className={`h-full rounded-full transition-all duration-300 ${
-                  progress >= 90 ? 'bg-orange-500' : 'bg-blue-600'
+                  progress >= 90 ? 'bg-orange-500' : 'bg-blue-500'
                 }`}
                 style={{ width: `${progress}%` }}
               />
@@ -77,13 +78,13 @@ const EventCard = ({ event, onClick }) => {
           </div>
 
           {/* Stats Row */}
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center gap-1.5">
-              <Users className="w-4 h-4" />
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center gap-1">
+              <Users className="w-3.5 h-3.5" />
               <span>{event.registered_users.length} Teams</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4" />
+            <div className="flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" />
               <span>{new Date(event.start_date).toLocaleDateString(undefined, {
                 month: 'short',
                 day: 'numeric'
@@ -92,9 +93,11 @@ const EventCard = ({ event, onClick }) => {
           </div>
 
           {/* Action Button */}
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-            <span className="text-sm font-medium">Manage Event</span>
-            <ArrowUpRight className="w-4 h-4" />
+          <button className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 
+                           bg-gray-50 text-gray-600 rounded-md text-xs font-medium
+                           group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+            Manage Event
+            <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -103,102 +106,109 @@ const EventCard = ({ event, onClick }) => {
 };
 
 const Dashboard = () => {
-  const [hackathons, setHackathons] = useState([]);
-  const { user, setHackathon } = useContext(globalContext);
+  const { user ,setHackathon} = useContext(globalContext);
   const router = useRouter();
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchHackathons = async () => {
+    const fetchEvents = async () => {
       try {
-        const res = await axios.post(
+        const response = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/hackathon/showspecific`,
           { client_id: user._id },
-          { headers: { "Content-Type": "application/json" }}
+          {
+            headers: { "Content-Type": "application/json" }
+          }
         );
 
-        if (res.data.res) {
-          setHackathons(res.data.hackathons);
+        console.log(response.data);
+        if (response.data.res) {
+          setEvents(response.data.hackathons);
         } else {
-          toast.error(res.data.msg);
+          toast.error(response.data.msg);
         }
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch hackathons");
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to fetch events");
+      } finally {
+        setLoading(false);
       }
     };
 
     if (user?._id) {
-      fetchHackathons();
+      fetchEvents();
     }
   }, [user]);
 
-  if (!user?.name) return null;
-
   const stats = [
-    { icon: Trophy, label: 'Total Events', value: hackathons?.length || 0 },
-    { icon: Clock, label: 'Active Events', value: hackathons?.filter(h => new Date(h.end_date) > new Date()).length || 0 },
-    { icon: Users, label: 'Total Teams', value: hackathons?.reduce((acc, curr) => acc + curr.registered_users.length, 0) || 0 },
-    { icon: Target, label: 'Completed Events', value: hackathons?.filter(h => new Date(h.end_date) < new Date()).length || 0 }
+    {
+      icon: Trophy,
+      label: "Total Events",
+      value: events.length
+    },
+    {
+      icon: Users,
+      label: "Total Participants",
+      value: events.reduce((acc, event) => acc + event.registered_users.length, 0)
+    },
+    {
+      icon: Target,
+      label: "Active Events",
+      value: events.filter(event => new Date(event.end_date) > new Date()).length
+    }
   ];
 
+  const handleEvent = (event)=>{
+    setHackathon(event)
+    router.push(`/host/dashboard/hackathon`);
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/10 py-4 pt-20">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Event Dashboard</h1>
-            <p className="text-sm text-gray-500 mt-1">Manage and monitor your hackathons</p>
+            <h1 className="text-lg font-semibold text-gray-900">Host Dashboard</h1>
+            <p className="text-sm text-gray-500 mt-1">Manage your hackathon events</p>
           </div>
-          
           <button
-            onClick={() => {
-              setHackathon(null);
-              router.push('/host/hosthackathon');
-            }}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            onClick={() => router.push("/host/hosthackathon")}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm
+                     font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <PlusCircle className="w-5 h-5" />
-            <span className="font-medium">Host New Event</span>
+            <PlusCircle className="w-4 h-4" />
+            Create Event
           </button>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
           {stats.map((stat, index) => (
             <StatCard key={index} {...stat} />
           ))}
         </div>
 
-        {/* Events Grid */}
-        {hackathons?.length > 0 ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {hackathons.map((event) => (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto" />
+          </div>
+        ) : events.length === 0 ? (
+          <div className="text-center py-12 px-4 rounded-lg border border-gray-100 bg-white">
+            <AlertCircle className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+            <h3 className="text-sm font-medium text-gray-900 mb-1">No Events Found</h3>
+            <p className="text-xs text-gray-500">Create your first hackathon event to get started</p>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {events.map((event) => (
               <EventCard
                 key={event._id}
                 event={event}
-                onClick={() => {
-                  setHackathon(event);
-                  router.push('/host/dashboard/hackathon');
-                }}
+                onClick={()=>handleEvent(event)}
               />
             ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 sm:py-16 bg-white rounded-xl border border-gray-100">
-            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No events yet</h3>
-            <p className="text-sm text-gray-500 mb-6">Get started by hosting your first hackathon</p>
-            <button
-              onClick={() => {
-                setHackathon(null);
-                router.push('/host/hosthackathon');
-              }}
-              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <PlusCircle className="w-5 h-5" />
-              <span className="font-medium">Create Event</span>
-            </button>
           </div>
         )}
       </div>

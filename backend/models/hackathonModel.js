@@ -105,6 +105,10 @@ const hackathonSchema = new mongoose.Schema({
                 default: false
             }
         }]
+    },
+    featured : {
+        type: Boolean,
+        default: false
     }
 
 }, { timestamps: true });

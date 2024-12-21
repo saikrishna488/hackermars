@@ -62,30 +62,29 @@ const HostHackathon = () => {
   const fileRef = useRef()
   const { user, hackathon } = useContext(globalContext)
 
-  const [fields, setFields] = useState(hackathon || {
-    title: '',
-    image: null,
-    team_size: '',
-    about: '',
-    themes: [],
-    judges: [],
-    organizers: [],
-    description: '',
-    partners: [],
-    prizes: [],
-    start_date: '',
-    end_date: '',
-    mode: '',
-    phone: '',
-    email: '',
-    max_users: '',
-    eligibility: '',
-    start_time: '',
-    end_time: '',
-    social_links: [],
-    location: "",
+  const [fields, setFields] = useState({
+    title: hackathon?.title || '',
+    image: hackathon?.image || '',
+    team_size: hackathon?.team_size || '',
+    about: hackathon?.about || '',
+    themes: hackathon?.themes?.join(', ') || "",
+    judges: hackathon?.judges?.join(', ') || "",
+    organizers: hackathon?.organizers?.join(', ') || "",
+    description: hackathon?.description || '',
+    partners: hackathon?.partners?.join(', ') || "",
+    prizes: hackathon?.prizes?.join(', ') || "",
+    start_date: hackathon?.start_date || '',
+    end_date: hackathon?.end_date || '',
+    mode: hackathon?.mode || 'Online',
+    phone: hackathon?.phone || '',
+    email: hackathon?.email || '',
+    max_users: hackathon?.max_users || '',
+    eligibility: hackathon?.eligibility || '',
+    start_time: hackathon?.start_time || '',
+    end_time: hackathon?.end_time || '',
+    location: hackathon?.location || '',
     conducted_by: user?.organization || "Google",
-    isPrivate: false,
+    isPrivate: hackathon?.isPrivate || false,
     client_id: user?._id
   });
 
@@ -93,13 +92,15 @@ const HostHackathon = () => {
   useEffect(() => {
 
     const fetchImage = async () => {
-      if (fields?._id) {
+      if (hackathon?._id) {
+        console.log("1")
 
         try {
           const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + '/' + fields.image);
           const blob = await response.blob(); // Step 1: Convert to Blob
           const file = new File([blob], 'previous_image.jpg', { type: blob.type }); // Step 2: Create File
 
+          console.log("2")
 
           setFields({ ...fields, image: file })
 
@@ -137,10 +138,10 @@ const HostHackathon = () => {
     })
   };
 
-  const handleArrayChange = (e, arrayName) => {
-    const { value } = e.target;
-    setFields({ ...fields, [arrayName]: value.split(',').map(item => item.trim()) });
-  };
+  // const handleArrayChange = (e, arrayName) => {
+  //   const { value } = e.target;
+  //   setFields({ ...fields, [arrayName]: value.split(',').map(item => item.trim()) });
+  // };
 
 
 
@@ -198,7 +199,30 @@ const HostHackathon = () => {
 
     try {
 
-      const res = await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL + '/hackathon/add', fields, {
+      const res = await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL + '/hackathon/add', {
+        title: fields.title,
+        team_size: fields.team_size,
+        about: fields.about,
+        description: fields.description,
+        start_date: fields.start_date,
+        end_date: fields.end_date,
+        mode: fields.mode,
+        phone: fields.phone,
+        email: fields.email,
+        max_users: fields.max_users,
+        eligibility: fields.eligibility,
+        themes: fields.themes.split(',').map(item => item.trim()),
+        judges: fields.judges.split(',').map(item => item.trim()),
+        organizers: fields.organizers.split(',').map(item => item.trim()),
+        partners: fields.partners.split(',').map(item => item.trim()),
+        prizes: fields.prizes.split(',').map(item => item.trim()),
+        location: fields.location,
+        conducted_by: fields.conducted_by,
+        isPrivate: fields.isPrivate,
+        client_id: fields.client_id,
+        image: fields.image,
+        _id: hackathon?._id,
+      }, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -531,8 +555,8 @@ const HostHackathon = () => {
                     <input
                       type="text"
                       name={field.name}
-                      value={fields[field.name]?.join(', ')}
-                      onChange={(e) => handleArrayChange(e, field.name)}
+                      value={fields[field.name]}
+                      onChange={(e) => setFields({ ...fields, [field.name]: e.target.value })}
                       className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder={field.placeholder}
                     />

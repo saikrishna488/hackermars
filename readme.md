@@ -46,11 +46,76 @@ A full-stack web application for organizing and participating in hackathons. Thi
 ### Installation
 
 1. Clone the repository
+```bash
+git clone <your-repo-url>
+cd hackermars
+```
 
-2. Install dependencies
-
-# Install frontend dependencies
-
-cd frontend
-
+2. Backend Setup
+```bash
+cd backend
 npm install
+cp .env.example .env  # Configure your environment variables
+npm run dev
+```
+
+3. Frontend Setup
+```bash
+cd frontend
+npm install
+cp .env.example .env.local  # Configure your environment variables
+npm run dev
+```
+
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:5000
+
+## Project Structure
+
+```
+hackermars/
+├── backend/
+│   ├── config/         # Configuration files
+│   ├── models/         # MongoDB schemas
+│   ├── routes/         # API routes
+│   ├── essentials/     # Utility functions
+│   └── server.js       # Entry point
+│
+└── frontend/
+    ├── app/           # Next.js 13+ app directory
+    ├── context_api/   # React Context providers
+    ├── lib/           # Utility functions
+    └── public/        # Static assets
+```
+
+## Environment Variables
+
+### Backend (.env)
+```
+MONGODB_URI=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+PORT=5000
+```
+
+### Frontend (.env.local)
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Thanks to all contributors who have helped shape this platform
+- Special thanks to the open-source community for the amazing tools and libraries

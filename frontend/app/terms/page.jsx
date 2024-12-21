@@ -116,14 +116,14 @@ const HostTermsAndConditions = () => {
           </p>
           <div className="flex justify-center gap-4">
             <button 
-              onClick={() => router.replace('/host')}
+              onClick={() => router.replace('/')}
               className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg
                 hover:bg-gray-50 transition-colors duration-200"
             >
               Go Back
             </button>
             <button 
-              onClick={() => router.replace('/host')}
+              onClick={() => router.back()}
               className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 
                 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 
                 transition-colors duration-200 shadow-lg shadow-blue-500/20"

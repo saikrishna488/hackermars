@@ -1,33 +1,25 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { Calendar, Users, ArrowRight } from 'lucide-react';
-
-const demoHackathons = [
-  { img: "https://devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fcontent%2F030b041535514a4db9321a346b6551d0%2F8c72122e-16c0-4a5b-9b5a-24ea065e2961.png&w=1440&q=75", title: "Hackathon 2024" },
-  { img: "https://hack-synthesis.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2Fa485a56b617a4864844f9ae238cfe38d%2Fassets%2Fcover%2F677.png&w=1440&q=100", title: "Innovators' Challenge" },
-  { img: "https://tictechtoe24.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2Fba6317ea5a2d40ffb5605600562b4857%2Fassets%2Fcover%2F200.png&w=1440&q=100", title: "Code Fest" },
-  { img: "https://thacks-7.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2F99b20414637c4111923d3b4e4c26b0ec%2Fassets%2Fcover%2F545.jpeg&w=1440&q=100", title: "Tech Titans" },
-  { img: "https://pitch-a-thon.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2F039ee018058642088f2b7002f67f85cd%2Fassets%2Fcover%2F980.png&w=1440&q=100", title: "Startup Sprint" },
-  { img: "https://techtrek.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2Fda1b3a9a329d4e3c952d6127f6cd5081%2Fassets%2Fcover%2F438.png&w=1440&q=100", title: "AI Challenge" },
-  { img: "https://frosthacks-s01.devfolio.co/_next/image?url=https%3A%2F%2Fassets.devfolio.co%2Fhackathons%2Fcbfa188e2b274347bd8004200c4b43d9%2Fassets%2Fcover%2F588.jpeg&w=1440&q=100", title: "Blockchain Bonanza" }
-];
-
+import { Calendar, Palette, ArrowRight } from 'lucide-react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 //hackathon card
-const HackathonCard = ({ hackathon }) => (
-  <div className="flex-shrink-0 snap-start w-full lg:w-[600px] group cursor-pointer">
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100">
+const HackathonCard = ({ hackathon,handleClick }) => (
+  <div className="flex-shrink-0 snap-start w-full sm:w-[400px] lg:w-[450px] group cursor-pointer">
+    <div className="bg-white h-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100 flex flex-col">
       {/* Image Container */}
-      <div className="relative aspect-[16/9] overflow-hidden">
+      <div className="relative w-full h-[225px] overflow-hidden">
         <img
-          src={hackathon.img}
+          src={process.env.NEXT_PUBLIC_BACKEND_URL + "/" +hackathon.image}
           alt={hackathon.title}
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute top-4 right-4">
           <span className={`
-            px-3 py-1 rounded-full text-xs font-medium
+            px-3 py-1.5 rounded-full text-xs font-medium
             ${hackathon.mode === 'online' 
               ? 'bg-blue-100 text-blue-700' 
               : 'bg-purple-100 text-purple-700'}
@@ -38,25 +30,28 @@ const HackathonCard = ({ hackathon }) => (
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        <h3 className="text-xl font-semibold text-gray-900 mb-3">
+      <div className="p-6 flex-1 flex flex-col">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 min-h-[56px]">
           {hackathon.title}
         </h3>
         
-        <div className="flex items-center gap-6 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-blue-500" />
-            <span>{hackathon.date}</span>
+        <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
+          <div className="flex items-center gap-2 min-w-[140px]">
+            <Calendar className="w-4 h-4 text-blue-500 flex-shrink-0" />
+            <span className="truncate">{new Date(hackathon.start_date).toDateString()}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-green-500" />
-            <span>{hackathon.participants} Participants</span>
+          <div className="flex items-center gap-2 flex-1">
+            <Palette className="w-4 h-4 text-green-500 flex-shrink-0" />
+            <span className="truncate">{hackathon.themes.slice(0,2).join(', ')+ (hackathon.themes.length > 2 ? " +more" : "")}</span>
           </div>
         </div>
 
         {/* View Details Button */}
-        <div className="mt-6 flex justify-end">
-          <button className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <button 
+            onClick={()=>handleClick(hackathon._id)} 
+            className="w-full inline-flex items-center justify-center text-sm font-medium text-blue-600 hover:text-blue-700 py-2 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+          >
             View Details
             <ArrowRight className="ml-1 w-4 h-4" />
           </button>
@@ -68,53 +63,44 @@ const HackathonCard = ({ hackathon }) => (
 
 const FeaturedHackathons = () => {
   const scrollContainerRef = useRef(null);
+  const [featured, setFeatured] = useState([]);
+  const router = useRouter();
 
-  useEffect(()=>{
-
-    const scrollContainer = scrollContainerRef.current
-    if(scrollContainer){
-      const maxScrollWidth = scrollContainer.scrollWidth - scrollContainer.clientWidth
-      const clientWidth = scrollContainer.clientWidth
-
-      const autoScroll = setInterval(()=>{
-        const scrollLeft = scrollContainer.scrollLeft
-        console.log(scrollLeft, maxScrollWidth)
-
-        if(scrollLeft >= maxScrollWidth-1){
-          scrollContainer.scrollTo({left:0,scrollBehavior: 'smooth'})
-          
-        }
-        else{
-          scrollContainer.scrollBy({left:clientWidth,scrollBehavior: 'smooth'})
-        }
-      },2000)
-
-      return ()=> clearInterval(autoScroll)
-    }
-  })
-
-  const scroll = (direction) => {
+  // Scroll handler
+  const handleScroll = (direction) => {
     const container = scrollContainerRef.current;
-    if (container) {
-      const cardWidth = container.clientWidth // Width of a single card
-      const scrollAmount = direction === 'left' ? -cardWidth : cardWidth;
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
+    if (!container) return;
+
+    const scrollAmount = 400; // Width of a card
+    const newScrollPosition = direction === 'left' 
+      ? container.scrollLeft - scrollAmount 
+      : container.scrollLeft + scrollAmount;
+
+    container.scrollTo({
+      left: newScrollPosition,
+      behavior: 'smooth'
+    });
   };
 
-  const NavigationButton = ({ direction, onClick }) => (
-    <button
-      onClick={onClick}
-      className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-blue-50 hover:border-blue-200 transition-colors duration-200"
-      aria-label={`Scroll ${direction}`}
-    >
-      {direction === 'left' ? (
-        <IoIosArrowBack className="w-5 h-5 text-gray-600" />
-      ) : (
-        <IoIosArrowForward className="w-5 h-5 text-gray-600" />
-      )}
-    </button>
-  );
+  useEffect(() => {
+    const fetchHackathons = async () => {
+      try {
+        const res = await axios.get(process.env.NEXT_PUBLIC_BACKEND_URL + '/admin/featured');
+        if (res.data.res) {
+          setFeatured(res.data.hackathons);
+        }
+      } catch (error) {
+        console.error('Error fetching hackathons:', error);
+        toast.error('Error fetching hackathons');
+      }
+    };
+
+    fetchHackathons();
+  }, []);
+
+  const handleHackathonClick = (id) => {
+    router.push(`/hackathon/${id}`);
+  };
 
   return (
     <section className="py-16 bg-gray-50">
@@ -131,20 +117,34 @@ const FeaturedHackathons = () => {
           </div>
           
           <div className="flex gap-2">
-            <NavigationButton direction="left" onClick={() => scroll('left')} />
-            <NavigationButton direction="right" onClick={() => scroll('right')} />
+            <button
+              onClick={() => handleScroll('left')}
+              className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow duration-200 text-gray-600 hover:text-gray-900"
+            >
+              <IoIosArrowBack size={24} />
+            </button>
+            <button
+              onClick={() => handleScroll('right')}
+              className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow duration-200 text-gray-600 hover:text-gray-900"
+            >
+              <IoIosArrowForward size={24} />
+            </button>
           </div>
         </div>
 
         {/* Carousel */}
-        <div className="relative">
+        <div className="relative overflow-hidden">
           <div
             ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
             style={{ scrollBehavior: 'smooth' }}
           >
-            {demoHackathons.map((hackathon, index) => (
-              <HackathonCard key={index} hackathon={hackathon} />
+            {featured.map((hackathon) => (
+              <HackathonCard 
+                key={hackathon._id} 
+                hackathon={hackathon}
+                handleClick={handleHackathonClick}
+              />
             ))}
           </div>
         </div>

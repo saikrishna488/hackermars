@@ -2,7 +2,8 @@
 import { useContext, useState } from 'react';
 import { 
   Edit, Trash, Eye, Send, Download,
-  ChevronDown, ChevronUp, Check, User 
+  ChevronDown, ChevronUp, Check, User,
+  ChevronLeft
 } from 'lucide-react';
 import { globalContext } from '@/context_api/globalContext';
 import { toast } from 'react-toastify';
@@ -253,18 +254,30 @@ const HackathonManagePage = () => {
   if (!hackathon?.title) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 pt-20">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h1 className="text-2xl font-bold text-gray-900">{hackathon.title}</h1>
-            <HeaderActions 
-              onEdit={handleEdit}
-              onDelete={() => handleDelete(hackathon._id)}
-              onView={() => handleView(hackathon._id)}
-            />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/10 py-4 pt-20">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Back Button */}
+        <button
+          onClick={() => router.push('/host/dashboard')}
+          className="group mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 
+                    bg-white/80 rounded-lg border border-gray-200 hover:bg-gray-50
+                    transition-all duration-200"
+        >
+          <ChevronLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
+          Back to Dashboard
+        </button>
+
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 mb-6">
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900">{hackathon?.title}</h1>
+            <p className="text-sm text-gray-500 mt-1">Manage your hackathon event</p>
           </div>
+          <HeaderActions
+            onEdit={handleEdit}
+            onDelete={() => handleDelete(hackathon._id)}
+            onView={() => handleView(hackathon._id)}
+          />
         </div>
 
         {/* Notifications Section */}
